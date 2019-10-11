@@ -1,0 +1,20 @@
+4
+10000
+0.001
+161.73
+0.0017838
+101325.0
+119.8
+3.405
+3.5
+!
+!     nAtoms    = total number of atoms
+!     simSteps  = no. MD steps 
+!     timeps    = time step in pico seconds (1ps = 10^-12s)
+!	  T			= temperature of initial system (Kelvin)
+!	  rho		= density of the system (g/cm^3)
+!	  P			= pressure of the system (Pa)
+!	  epsk		= well-depth of potential divided by k_B (Kelvin)
+!	  sigma		= the atomic size (Angstrom)
+!	  r_co		= radial cut-off for potential (Angstrom)
+!
