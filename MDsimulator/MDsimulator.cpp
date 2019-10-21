@@ -6,7 +6,7 @@
 #include "Atoms.h"
 #include "CellBuilder.h"
 #include "VelocityManager.h"
-#include "Potential.h"
+#include "Ensemble.h"
 using namespace std;
 
 const double kB = 1.30864e-23;
@@ -18,23 +18,31 @@ struct dataT {
 	double T, rho, P, dt_ps;  //temperature, density, pressure.
 	double epsK, sigma, r_co;  // epsilon/K, sigma, potential cut_off.
 	double dt_s, T_s;  // Reduced timestep, reduced temperature
-};
+} dataContainer;
 
 void GetParameters(dataT* data);
 void InitializeSetup(Atoms* atoms, dataT* data);
 
 
-
-
 int main()
 {
-	dataT dataContainer;
 	GetParameters(&dataContainer);
-	Atoms atoms(8);
+	Atoms atoms(256);
 	InitializeSetup(&atoms, &dataContainer);
-	Potential* lj = new LJ(&atoms);
-	cout << lj->getEnergy() << endl;;
-	vector<vector<double>> F = lj->getForces();
+	Ensemble* ens = new NVE(&atoms, PotType::LJ, InteType::VERLET, dataContainer.dt_ps);
+	double U, K;
+	vector<vector<double>> F;
+	for (int i = 0; i < 300; i++)
+	{
+		ens->calculate(&U, &F);
+		ens->update(&F);
+		//cout << "new positions" << endl;
+		//atoms.print(true);
+		K = atoms.getEnergy();
+		cout << "Potential energy: " << U << endl;
+		cout << "Kinetic energy: " << K << endl;
+		cout << "Total energy: " << U + K << endl;
+	}
 	return 0;
 }
 

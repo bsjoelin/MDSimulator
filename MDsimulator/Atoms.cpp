@@ -11,12 +11,10 @@ Atoms::Atoms(int natoms) {
 
 Atoms::~Atoms() {
 	pos.clear();
-	oldPos.clear();
 	vel.clear();
-	oldVel.clear();
 }
 
-void Atoms::print() {
+void Atoms::print(bool printAverage) {
 	vector<double> R = { 0.0, 0.0, 0.0 };
 	for (vector<double> p : pos) {
 		for (int i = 0; i < 3; i++) {
@@ -25,11 +23,13 @@ void Atoms::print() {
 		}
 		cout << "\n";
 	}
-	cout << "Average: ";
-	for (double d : R) {
-		cout << d << ", ";
+	if (printAverage) {
+		cout << "Average: ";
+		for (double d : R) {
+			cout << d << ", ";
+		}
+		cout << endl;
 	}
-	cout << endl;
 }
 
 void Atoms::printVel() {
@@ -91,12 +91,6 @@ void Atoms::centerVel() {
 	}
 }
 
-void Atoms::resize(int n) {
-	nAtoms = n;
-	pos.resize(n, vector<double>(3, 0));
-	vel.resize(n, vector<double>(3, 0));
-}
-
 int Atoms::getSize() {
 	return nAtoms;
 }
@@ -107,6 +101,18 @@ vector<double> Atoms::getPos(int i) {
 
 vector<double> Atoms::getVel(int i) {
 	return vel[i];
+}
+
+double Atoms::getEnergy() {
+	double K = 0.0;
+	for (vector<double> v : vel) {
+		double speed = 0.0;
+		for (double vj : v) {
+			speed += vj * vj;
+		}
+		K += pow(speed, 0.5);
+	}
+	return 1.0 / 2.0 * K;
 }
 
 void Atoms::setPos(int i, vector<double> r) {
@@ -121,4 +127,11 @@ void Atoms::setCellLength(double length) {
 	if (cellLength > 0.0) {
 		cellLength = length;
 	}
+}
+
+// private
+void Atoms::resize(int n) {
+	nAtoms = n;
+	pos.resize(n, vector<double>(3, 0));
+	vel.resize(n, vector<double>(3, 0));
 }

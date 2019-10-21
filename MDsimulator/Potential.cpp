@@ -1,11 +1,14 @@
 #include "Potential.h"
 #include <iostream>
 
-Potential::Potential(Atoms* a) {
+Potential::Potential(Atoms* a) :
+	dist(a->getSize(), vector<double>(a->getSize(), 0))
+{
 	atoms = a;
+	calculateDistances();
 }
 
-void Potential::getDistances(Atoms* atoms, vector<vector<double>>* dist) {
+void Potential::calculateDistances() {
 	for (int i = 0; i < atoms->getSize() - 1; i++) {
 		for (int j = i + 1; j < atoms->getSize(); j++) {
 			vector<double> pos1 = atoms->getPos(i);
@@ -16,14 +19,13 @@ void Potential::getDistances(Atoms* atoms, vector<vector<double>>* dist) {
 				r += diff * diff;
 			}
 			r = pow(r, 0.5);
-			(*dist)[i][j] = r;
-			(*dist)[j][i] = r;
+			dist[i][j] = r;
+			dist[j][i] = r;
 		}
 	}
 }
 
-LJ::LJ(Atoms* a) 
-	: dist(a->getSize(), vector<double>(a->getSize(), 0)),
+LJ::LJ(Atoms* a) :
 	Potential(a) 
 {
 	atoms = a;
@@ -35,9 +37,6 @@ LJ::~LJ() {
 
 
 double LJ::getEnergy() {
-	getDistances(atoms, &dist);
-	printDistances();
-
 	double U = 0.0;
 
 	for (int i = 0; i < atoms->getSize() - 1; i++) {
@@ -45,7 +44,6 @@ double LJ::getEnergy() {
 			U += 4.0 * (pow(1.0 / dist[i][j], 12.0) - pow(1.0 / dist[i][j], 6.0));
 		}
 	}
-
 	return U;
 }
 
@@ -65,7 +63,7 @@ vector<vector<double>> LJ::getForces() {
 			}
 		}
 	}
-	printForces(F);
+	//printForces(F);
 	return F;
 }
 

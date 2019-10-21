@@ -13,10 +13,11 @@ public:
 
 	virtual double getEnergy() = 0;
 	virtual vector<vector<double>> getForces() = 0;
-	static void getDistances(Atoms* atoms, vector<vector<double>>* dist);
+	void calculateDistances();
 
 protected:
 	Atoms* atoms;
+	vector<vector<double>> dist;
 };
 
 
@@ -31,9 +32,6 @@ public:
 	vector<vector<double>> getForces();
 	void printDistances();
 	void printForces(vector<vector<double>> F);
-
-private:
-	vector<vector<double>> dist;
 };
 
 #endif // !_potential_h

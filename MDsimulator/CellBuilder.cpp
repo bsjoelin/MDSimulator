@@ -19,7 +19,7 @@ void CellBuilder::buildCell(Atoms* atoms, double density, double sigma) {
 		N = int(pow(floor(n), 3.0));
 		cout << "Number of atoms is not a magic number! using "
 			<< N << " instead." << endl;
-		atoms->resize(N);
+		*atoms = Atoms(N);
 		cellLength = pow(N / density, (1.0 / 3.0)) / sigma;
 		buildSCCell(int(floor(n)), cellLength, atoms);
 	}
@@ -88,6 +88,5 @@ void CellBuilder::buildFCCCell(double N, double length, Atoms* atoms) {
 		}
 	}
 	atoms->center();
-	atoms->print();
 	cout << "Chose FCC!" << endl;
 }

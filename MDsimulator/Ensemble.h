@@ -7,7 +7,7 @@
 class Ensemble
 {
 public:
-	Ensemble(Atoms* atoms, PotType potT, IntegratorType intT);
+	Ensemble(Atoms* atoms, PotType potT, InteType intT, double diff_t);
 	~Ensemble();
 
 	void calculate(double* energy, vector<vector<double>>* forces);
@@ -24,9 +24,9 @@ class NVE :
 	public Ensemble
 {
 public:
-	void update(vector<vector<double>>* forces);
-private:
+	NVE(Atoms* a, PotType potT, InteType intT, double diff_t);
 
+	void update(vector<vector<double>>* forces);
 };
 
 #endif // !_ensemble_h

@@ -4,15 +4,12 @@
 #include <cmath>
 #include <iostream>
 
-VelocityManager::VelocityManager()
-	: d(0, 1),
-	e{ static_cast<long unsigned int>(time(0)) } {
+VelocityManager::VelocityManager(){
 	
 }
 
 VelocityManager::~VelocityManager() {
-	delete &d;
-	delete &e;
+
 }
 
 void VelocityManager::initializeVelocities(Atoms* atoms, double T) {
@@ -24,7 +21,7 @@ void VelocityManager::initializeVelocities(Atoms* atoms, double T) {
 		atoms->setVel(i, v);
 	}
 	atoms->centerVel();
-	atoms->printVel();
+	//atoms->printVel();
 }
 
 double VelocityManager::gaussianN(double m, double T) {

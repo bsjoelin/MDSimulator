@@ -3,19 +3,39 @@
 
 #include "Atoms.h"
 
-enum class IntegratorType { VERLET };
+enum class InteType { VERLET };
 
 class Integrator
 {
 public:
-	virtual void update(vector<vector<double>>* forces) = 0;
+	virtual void update(Atoms* atoms, vector<vector<double>>* forces) = 0;
 };
+
 
 class Verlet :
 	public Integrator
 {
 public:
-	Verlet(Atoms* atoms);
+	Verlet(Atoms* atoms, vector<vector<double>>* forces, double dt);
+	~Verlet();
+
+	void update(Atoms* atoms, vector<vector<double>>* forces);
+
+private:
+	vector<vector<double>> oldPos;
+	double dt;
+
+	double advancePos(double q, double oldq, double F);
+	double advanceVel(double newq, double oldq);
+
+};
+
+
+class LeapFrog :
+	public Integrator
+{
+public:
+	LeapFrog(Atoms* atoms);
 
 	void update(vector<vector<double>>* forces);
 };
