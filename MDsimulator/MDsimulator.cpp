@@ -47,6 +47,7 @@ int main()
 		K = atoms.getEnergy();
 		logger << U << "\t" << K << "\t" << U + K << endl;
 	}
+	logger.close();
 	return 0;
 }
 
