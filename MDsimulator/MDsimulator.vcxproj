@@ -172,10 +172,7 @@
     <ResourceCompile Include="MDsimulator.rc" />
   </ItemGroup>
   <ItemGroup>
-    <Text Include="parameters.inp" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="sim.out" />
+    <None Include="parameters.inp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
