@@ -1,12 +1,12 @@
 #include "Atoms.h"
-#include <iostream>
 
 
-Atoms::Atoms(int natoms) {
+Atoms::Atoms(int natoms)
+	: pos(natoms, vector<double>(3, 0)),
+	vel(natoms, vector<double>(3, 0))
+{
 	nAtoms = natoms;
 	cellLength = 0.0;
-	pos.resize(natoms, vector<double>(3, 0));
-	vel.resize(natoms, vector<double>(3, 0));
 }
 
 Atoms::~Atoms() {
@@ -111,6 +111,7 @@ double Atoms::getEnergy() {
 			speed += vj * vj;
 		}
 		K += pow(speed, 0.5);
+		//K += speed;
 	}
 	return 1.0 / 2.0 * K;
 }
@@ -127,11 +128,4 @@ void Atoms::setCellLength(double length) {
 	if (cellLength > 0.0) {
 		cellLength = length;
 	}
-}
-
-// private
-void Atoms::resize(int n) {
-	nAtoms = n;
-	pos.resize(n, vector<double>(3, 0));
-	vel.resize(n, vector<double>(3, 0));
 }

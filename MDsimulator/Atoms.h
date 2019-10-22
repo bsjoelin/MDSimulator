@@ -2,6 +2,7 @@
 #define _Atoms_h
 
 #include <vector>
+#include <iostream>
 
 using namespace std;
 
@@ -31,7 +32,6 @@ private:
 	int nAtoms;
 	double cellLength;
 	vector<vector<double> > pos, vel;
-	void resize(int n);
 };
 
 #endif

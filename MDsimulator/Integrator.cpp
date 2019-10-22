@@ -1,7 +1,7 @@
 #include "Integrator.h"
 
 Verlet::Verlet(Atoms* a, vector<vector<double>>* F, double diff_t)
-	: oldPos(a->getSize(), vector<double>(3,0))
+	: oldPos(a->getSize(), vector<double>(3, 0))
 {
 	dt = diff_t;
 	for (int i = 0; i < a->getSize(); i++) {

@@ -9,9 +9,10 @@
 #include "Ensemble.h"
 using namespace std;
 
-const double kB = 1.30864e-23;
+const double kB = 1.38065e-23;
 const double AVOGADRO = 6.022045e+23;
-const string INFILE = "parameters.par";
+const string INFILE = "parameters.inp";
+const string OUTFILE = "sim.out";
 
 struct dataT {
 	int nAtoms, simSteps;  //number of atoms, number of MD steps.
@@ -26,22 +27,25 @@ void InitializeSetup(Atoms* atoms, dataT* data);
 
 int main()
 {
+	ofstream logger;
+	logger.open(OUTFILE);
+	if (!logger.is_open()) {
+		cout << "Couldn't open output file. Exiting." << endl;
+		return 0;
+	}
 	GetParameters(&dataContainer);
-	Atoms atoms(256);
+	Atoms atoms(dataContainer.nAtoms);
 	InitializeSetup(&atoms, &dataContainer);
 	Ensemble* ens = new NVE(&atoms, PotType::LJ, InteType::VERLET, dataContainer.dt_ps);
 	double U, K;
-	vector<vector<double>> F;
-	for (int i = 0; i < 300; i++)
+	logger << "U\tK\tH" << endl;
+	for (int i = 0; i < dataContainer.simSteps; i++)
 	{
-		ens->calculate(&U, &F);
-		ens->update(&F);
-		//cout << "new positions" << endl;
-		//atoms.print(true);
+		U = ens->calculate();
+		ens->update();
+
 		K = atoms.getEnergy();
-		cout << "Potential energy: " << U << endl;
-		cout << "Kinetic energy: " << K << endl;
-		cout << "Total energy: " << U + K << endl;
+		logger << U << "\t" << K << "\t" << U + K << endl;
 	}
 	return 0;
 }

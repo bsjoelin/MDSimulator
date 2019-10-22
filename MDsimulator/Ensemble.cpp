@@ -1,6 +1,8 @@
 #include "Ensemble.h"
 
-Ensemble::Ensemble(Atoms* a, PotType potT, InteType intT, double diff_t) {
+Ensemble::Ensemble(Atoms* a, PotType potT, InteType intT, double diff_t)
+	: forces(a->getSize(), vector<double>(3, 0))
+{
 	atoms = a;
 	switch (potT)
 	{
@@ -13,15 +15,15 @@ Ensemble::Ensemble(Atoms* a, PotType potT, InteType intT, double diff_t) {
 	}
 
 	Pot->calculateDistances();
-	vector<vector<double>> F = Pot->getForces();
+	forces = Pot->getForces();
 
 	switch (intT)
 	{
 	case InteType::VERLET:
-		Inte = new Verlet(atoms, &F, diff_t);
+		Inte = new Verlet(atoms, &forces, diff_t);
 		break;
 	default:
-		Inte = new Verlet(atoms, &F, diff_t);
+		Inte = new Verlet(atoms, &forces, diff_t);
 		break;
 	}
 }
@@ -30,15 +32,15 @@ Ensemble::~Ensemble() {
 	delete &Pot, &Inte;
 }
 
-void Ensemble::calculate(double* U, vector<vector<double>>* F) {
+double Ensemble::calculate() {
 	Pot->calculateDistances();
-	*U = Pot->getEnergy();
-	*F = Pot->getForces();
+	forces = Pot->getForces();
+	return Pot->getEnergy();
 }
 
 NVE::NVE(Atoms* a, PotType potT, InteType intT, double diff_t)
 	: Ensemble(a, potT, intT, diff_t) {}
 
-void NVE::update(vector<vector<double>>* F) {
-	Inte->update(atoms, F);
+void NVE::update() {
+	Inte->update(atoms, &forces);
 }

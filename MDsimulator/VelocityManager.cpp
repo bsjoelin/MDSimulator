@@ -1,16 +1,10 @@
 #define _USE_MATH_DEFINES
 
 #include "VelocityManager.h"
-#include <cmath>
-#include <iostream>
 
-VelocityManager::VelocityManager(){
-	
-}
+VelocityManager::VelocityManager() {}
 
-VelocityManager::~VelocityManager() {
-
-}
+VelocityManager::~VelocityManager() {}
 
 void VelocityManager::initializeVelocities(Atoms* atoms, double T) {
 	vector<double> v = { 0.0, 0.0, 0.0 };
@@ -21,12 +15,11 @@ void VelocityManager::initializeVelocities(Atoms* atoms, double T) {
 		atoms->setVel(i, v);
 	}
 	atoms->centerVel();
-	//atoms->printVel();
 }
 
 double VelocityManager::gaussianN(double m, double T) {
 	// The gaussian variance is calculated
-	double variance = kB * T / (m * unitMass);
+	double variance = T;  // * m[i];
 	// The two polar coordinates for a gaussian distribution
 	double phi = 2 * M_PI * d(e);
 	double s = -variance * log(1.0 - d(e));

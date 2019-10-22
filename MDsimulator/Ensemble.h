@@ -10,12 +10,13 @@ public:
 	Ensemble(Atoms* atoms, PotType potT, InteType intT, double diff_t);
 	~Ensemble();
 
-	void calculate(double* energy, vector<vector<double>>* forces);
-	virtual void update(vector<vector<double>>* forces) = 0;
+	double calculate();
+	virtual void update() = 0;
 
 
 protected:
 	Atoms* atoms;
+	vector<vector<double>> forces;
 	Potential* Pot;
 	Integrator* Inte;
 };
@@ -26,7 +27,7 @@ class NVE :
 public:
 	NVE(Atoms* a, PotType potT, InteType intT, double diff_t);
 
-	void update(vector<vector<double>>* forces);
+	void update();
 };
 
 #endif // !_ensemble_h

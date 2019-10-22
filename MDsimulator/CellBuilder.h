@@ -5,6 +5,7 @@
 #include "Atoms.h"
 #include <iostream>
 #include <cmath>
+#include "math.h"
 
 class CellBuilder
 {

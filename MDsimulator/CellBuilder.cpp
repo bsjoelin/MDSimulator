@@ -1,5 +1,4 @@
 #include "CellBuilder.h"
-#include "math.h"
 
 void CellBuilder::buildCell(Atoms* atoms, double density, double sigma) {
 	int N = atoms->getSize();

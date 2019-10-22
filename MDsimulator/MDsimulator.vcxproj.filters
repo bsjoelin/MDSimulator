@@ -66,6 +66,9 @@
     </ResourceCompile>
   </ItemGroup>
   <ItemGroup>
-    <Text Include="parameters.par" />
+    <None Include="sim.out" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="parameters.inp" />
   </ItemGroup>
 </Project>
