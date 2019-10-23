@@ -18,6 +18,7 @@ public:
 	void printVel();
 
 	int getSize();
+	double getCellLength();
 	vector<double> getPos(int i);
 	vector<double> getVel(int i);
 	double getEnergy();

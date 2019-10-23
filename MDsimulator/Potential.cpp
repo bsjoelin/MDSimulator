@@ -16,7 +16,9 @@ void Potential::calculateDistances() {
 			double r = 0.0;
 			for (int k = 0; k < 3; k++) {
 				double diff = pos1[k] - pos2[k];
-				r += diff * diff;
+				double pbc_dist = diff - atoms->getCellLength()
+					* round(diff / atoms->getCellLength());
+				r += pbc_dist * pbc_dist;
 			}
 			r = pow(r, 0.5);
 			dist[i][j] = r;
@@ -56,7 +58,10 @@ vector<vector<double>> LJ::getForces() {
 			double pf = 48 / dist[i][j] * (pow(1 / dist[i][j], 14.0)
 				- 0.5 * pow(1 / dist[i][j], 8.0));
 			for (int k = 0; k < 3; k++)	{
-				double F_jia = pf * (atoms->getPos(i)[k] - atoms->getPos(j)[k]);
+				double diff = atoms->getPos(i)[k] - atoms->getPos(j)[k];
+				double pbc_dist = diff - atoms->getCellLength()
+					* round(diff / atoms->getCellLength());
+				double F_jia = pf * (pbc_dist);
 				
 				F[i][k] += F_jia;
 				F[j][k] -= F_jia;

@@ -95,6 +95,10 @@ int Atoms::getSize() {
 	return nAtoms;
 }
 
+double Atoms::getCellLength() {
+	return cellLength;
+}
+
 vector<double> Atoms::getPos(int i) {
 	return pos[i];
 }
@@ -122,7 +126,7 @@ void Atoms::setVel(int i, vector<double> r) {
 }
 
 void Atoms::setCellLength(double length) {
-	if (cellLength > 0.0) {
+	if (length > 0.0) {
 		cellLength = length;
 	}
 }

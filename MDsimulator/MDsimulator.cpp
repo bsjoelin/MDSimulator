@@ -53,6 +53,9 @@ int main()
 		logger << t << "\t" << U << "\t" << K << "\t" << K + U << endl;
 	}
 	logger.close();
+	atoms.print(true);
+	atoms.printVel();
+	ens->printForces();
 	return 0;
 }
 
