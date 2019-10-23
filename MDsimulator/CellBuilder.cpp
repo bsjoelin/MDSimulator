@@ -3,7 +3,7 @@
 void CellBuilder::buildCell(Atoms* atoms, double density, double sigma) {
 	int N = atoms->getSize();
 	double n = pow(N, (1.0 / 3.0));
-	double cellLength = pow(N / density, (1.0 / 3.0)) / sigma;
+	double cellLength = pow(N / density, (1.0 / 3.0));
 	double temp = 0.0;
 	if (abs(modf(n + 0.0001, &temp)) < 0.001) {
 		buildSCCell(temp, cellLength, atoms);
@@ -19,8 +19,8 @@ void CellBuilder::buildCell(Atoms* atoms, double density, double sigma) {
 		cout << "Number of atoms is not a magic number! using "
 			<< N << " instead." << endl;
 		*atoms = Atoms(N);
-		cellLength = pow(N / density, (1.0 / 3.0)) / sigma;
-		buildSCCell(int(floor(n)), cellLength, atoms);
+		cellLength = pow(N / density, (1.0 / 3.0));
+		buildSCCell(n + 0.1, cellLength, atoms);
 	}
 	atoms->setCellLength(cellLength);
 }

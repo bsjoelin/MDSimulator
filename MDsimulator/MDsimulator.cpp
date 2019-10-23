@@ -16,7 +16,7 @@ const string OUTFILE = "sim.out";
 
 struct dataT {
 	int nAtoms, simSteps;  //number of atoms, number of MD steps.
-	double T, rho, P, dt_ps;  //temperature, density, pressure.
+	double T, rho, P, dt_ps;  //temperature, density, pressure, delta time [ps].
 	double epsK, sigma, r_co;  // epsilon/K, sigma, potential cut_off.
 	double dt_s, T_s;  // Reduced timestep, reduced temperature
 } dataContainer;
@@ -36,16 +36,21 @@ int main()
 	GetParameters(&dataContainer);
 	Atoms atoms(dataContainer.nAtoms);
 	InitializeSetup(&atoms, &dataContainer);
-	Ensemble* ens = new NVE(&atoms, PotType::LJ, InteType::VERLET, dataContainer.dt_ps);
-	double U, K;
-	logger << "U\tK\tH" << endl;
+	Ensemble* ens = new NVE(&atoms, PotType::LJ, InteType::VERLET, dataContainer.dt_s);
+	double U, K, t = 0;
+	logger << "t\tU\tK\tH" << endl;
+	U = ens->calculate();
+	K = atoms.getEnergy();
+	logger << t << "\t" << U << "\t" << K << "\t" << K + U << endl;
 	for (int i = 0; i < dataContainer.simSteps; i++)
 	{
 		U = ens->calculate();
 		ens->update();
 
 		K = atoms.getEnergy();
-		logger << U << "\t" << K << "\t" << U + K << endl;
+		
+		t += dataContainer.dt_s;
+		logger << t << "\t" << U << "\t" << K << "\t" << K + U << endl;
 	}
 	logger.close();
 	return 0;
@@ -69,15 +74,17 @@ void GetParameters(dataT *d) {
 			* 1.0e-12 * 1.0e+10 * d->dt_ps;
 
 		d->T_s = d->T / d->epsK;
+		
+		inputFile.close();
 	}
 	else {
 		throw invalid_argument("Data file unavailable!");
 	}
-	inputFile.close();
 }
 
 void InitializeSetup(Atoms* a, dataT* d) {
-	CellBuilder::buildCell(a, d->rho, d->sigma);
+	double rhoN = AVOGADRO / a->mass * d->rho * 1e-24 * pow(d->sigma, 3);
+	CellBuilder::buildCell(a, rhoN, d->sigma);
 	VelocityManager vm;
 	vm.initializeVelocities(a, d->T_s);
 }

@@ -11,7 +11,9 @@ public:
 	~Ensemble();
 
 	double calculate();
+	void printForces();
 	virtual void update() = 0;
+
 
 
 protected:

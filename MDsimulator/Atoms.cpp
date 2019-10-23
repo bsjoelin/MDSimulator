@@ -26,7 +26,7 @@ void Atoms::print(bool printAverage) {
 	if (printAverage) {
 		cout << "Average: ";
 		for (double d : R) {
-			cout << d << ", ";
+			cout << d / nAtoms << ", ";
 		}
 		cout << endl;
 	}
@@ -43,7 +43,7 @@ void Atoms::printVel() {
 	}
 	cout << "Average: ";
 	for (double d : av) {
-		cout << d << ", ";
+		cout << d / nAtoms << ", ";
 	}
 	cout << endl;
 }
@@ -106,12 +106,9 @@ vector<double> Atoms::getVel(int i) {
 double Atoms::getEnergy() {
 	double K = 0.0;
 	for (vector<double> v : vel) {
-		double speed = 0.0;
 		for (double vj : v) {
-			speed += vj * vj;
+			K += vj * vj;
 		}
-		K += pow(speed, 0.5);
-		//K += speed;
 	}
 	return 1.0 / 2.0 * K;
 }

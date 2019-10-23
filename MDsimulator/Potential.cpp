@@ -53,8 +53,8 @@ vector<vector<double>> LJ::getForces() {
 	for (int i = 0; i < atoms->getSize() - 1; i++) {
 		for (int j = i + 1; j < atoms->getSize(); j++) {
 			// scalar force divided by distance
-			double pf = 48 / dist[i][j] * (pow(1 / dist[i][j], 14)
-				- 0.5 * pow(1 / dist[i][j], 12));
+			double pf = 48 / dist[i][j] * (pow(1 / dist[i][j], 14.0)
+				- 0.5 * pow(1 / dist[i][j], 8.0));
 			for (int k = 0; k < 3; k++)	{
 				double F_jia = pf * (atoms->getPos(i)[k] - atoms->getPos(j)[k]);
 				

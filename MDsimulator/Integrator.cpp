@@ -27,7 +27,7 @@ void Verlet::update(Atoms* a, vector<vector<double>>* F) {
 		vector<double> v = vector<double>(3, 0);
 		for (int j = 0; j < 3; j++) {
 			q[j] = advancePos(a->getPos(i)[j], oldPos[i][j], (*F)[i][j]);
-			v[j] = advanceVel(q[j], oldPos[i][j]);
+			v[j] = advanceVel(a->getPos(i)[j], oldPos[i][j]);
 		}
 		oldPos[i] = a->getPos(i);
 		a->setPos(i, q);  // at t + dt
