@@ -151,6 +151,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Analysis.cpp" />
     <ClCompile Include="Atoms.cpp" />
     <ClCompile Include="CellBuilder.cpp" />
     <ClCompile Include="Ensemble.cpp" />
@@ -160,6 +161,7 @@
     <ClCompile Include="VelocityManager.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Analysis.h" />
     <ClInclude Include="Atoms.h" />
     <ClInclude Include="CellBuilder.h" />
     <ClInclude Include="Ensemble.h" />

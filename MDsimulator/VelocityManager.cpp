@@ -15,6 +15,17 @@ void VelocityManager::initializeVelocities(Atoms* atoms, double T) {
 		atoms->setVel(i, v);
 	}
 	atoms->centerVel();
+
+	double T_calc = 2 / (3.0 * atoms->getSize()) * atoms->getEnergy();
+	double correction = pow(T / T_calc, 0.5);
+
+	for (int i = 0; i < atoms->getSize(); i++) {
+		vector<double> v_c = atoms->getVel(i);
+		for (int j = 0; j < 3; j++) {
+			v_c[j] *= correction;
+		}
+		atoms->setVel(i, v_c);
+	}
 }
 
 double VelocityManager::gaussianN(double m, double T) {

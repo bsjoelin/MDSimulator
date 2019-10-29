@@ -7,6 +7,7 @@
 #include "CellBuilder.h"
 #include "VelocityManager.h"
 #include "Ensemble.h"
+#include "Analysis.h"
 using namespace std;
 
 const double kB = 1.38065e-23;
@@ -37,25 +38,30 @@ int main()
 	Atoms atoms(dataContainer.nAtoms);
 	InitializeSetup(&atoms, &dataContainer);
 	Ensemble* ens = new NVE(&atoms, PotType::LJ, InteType::VERLET, dataContainer.dt_s);
+	AnalysisTools::LinearRegressor reg = AnalysisTools::LinearRegressor();
+
 	double U, K, t = 0;
 	logger << "t\tU\tK\tH" << endl;
-	U = ens->calculate();
-	K = atoms.getEnergy();
+	U = ens->calculate() * dataContainer.epsK;
+	K = atoms.getEnergy() * dataContainer.epsK;
 	logger << t << "\t" << U << "\t" << K << "\t" << K + U << endl;
-	for (int i = 0; i < dataContainer.simSteps; i++)
-	{
-		U = ens->calculate();
-		ens->update();
+	reg.addPoint(t, K + U);
 
-		K = atoms.getEnergy();
-		
-		t += dataContainer.dt_s;
+	for (int i = 1; i <= dataContainer.simSteps; i++)
+	{
+		ens->update();
+		U = ens->calculate() * dataContainer.epsK;
+		K = atoms.getEnergy() * dataContainer.epsK;
+
+		t += dataContainer.dt_ps;
 		logger << t << "\t" << U << "\t" << K << "\t" << K + U << endl;
+		reg.addPoint(t, K + U);
 	}
+
 	logger.close();
-	atoms.print(true);
-	atoms.printVel();
-	ens->printForces();
+	cout << "dt = " << dataContainer.dt_ps << endl;
+	cout << "a = " << reg.getSlope() << endl;
+	cout << "b = " << reg.getIntersect() << endl;
 	return 0;
 }
 

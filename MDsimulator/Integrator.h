@@ -23,6 +23,7 @@ public:
 
 private:
 	vector<vector<double>> oldPos;
+	vector<vector<double>> nextPos;
 	double dt;
 
 	double advancePos(double q, double oldq, double F);
