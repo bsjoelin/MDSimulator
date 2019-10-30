@@ -1,10 +1,10 @@
 #include "Ensemble.h"
 
-Ensemble::Ensemble(Atoms* a, PotType potT, InteType intT, double diff_t)
+Ensemble::Ensemble(Atoms* a, dataT* d)
 	: forces(a->getSize(), vector<double>(3, 0))
 {
 	atoms = a;
-	switch (potT)
+	switch (d->PT)
 	{
 	case PotType::LJ:
 		Pot = new LJ(atoms);
@@ -17,25 +17,32 @@ Ensemble::Ensemble(Atoms* a, PotType potT, InteType intT, double diff_t)
 	Pot->calculateDistances();
 	forces = Pot->getForces();
 
-	switch (intT)
+	switch (d->IT)
 	{
 	case InteType::VERLET:
-		Inte = new Verlet(atoms, &forces, diff_t);
+		InteEngine = new Verlet(atoms, &forces, d->dt_s);
+		break;
+	case InteType::VELVERLET:
+		InteEngine = new VelVerlet(atoms, d->T_s, d->dt_s, d->tau_s_s);
 		break;
 	default:
-		Inte = new Verlet(atoms, &forces, diff_t);
+		InteEngine = new Verlet(atoms, &forces, d->dt_s);
 		break;
 	}
 }
 
 Ensemble::~Ensemble() {
-	delete &Pot, &Inte;
+	delete &Pot, & InteEngine;
 }
 
 double Ensemble::calculate() {
 	Pot->calculateDistances();
 	forces = Pot->getForces();
 	return Pot->getEnergy();
+}
+
+vector<vector<double>> Ensemble::getForces() {
+	return Pot->getForces();
 }
 
 void Ensemble::printForces() {
@@ -54,9 +61,9 @@ void Ensemble::printForces() {
 	cout << endl;
 }
 
-NVE::NVE(Atoms* a, PotType potT, InteType intT, double diff_t)
-	: Ensemble(a, potT, intT, diff_t) {}
+NVE::NVE(Atoms* a, dataT* d)
+	: Ensemble(a, d) {}
 
 void NVE::update() {
-	Inte->update(atoms, &forces);
+	InteEngine->update(atoms, &forces, this);
 }

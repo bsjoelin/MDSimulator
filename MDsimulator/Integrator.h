@@ -3,12 +3,17 @@
 
 #include "Atoms.h"
 
-enum class InteType { VERLET };
+class Ensemble;
+
+enum class InteType { VERLET, VELVERLET };
 
 class Integrator
 {
 public:
-	virtual void update(Atoms* atoms, vector<vector<double>>* forces) = 0;
+	virtual void update(Atoms* atoms, vector<vector<double>>* forces, Ensemble* ens) = 0;
+
+protected:
+	double dt = 0;
 };
 
 
@@ -19,26 +24,36 @@ public:
 	Verlet(Atoms* atoms, vector<vector<double>>* forces, double dt);
 	~Verlet();
 
-	void update(Atoms* atoms, vector<vector<double>>* forces);
+	void update(Atoms* atoms, vector<vector<double>>* forces, Ensemble* ens);
 
 private:
 	vector<vector<double>> oldPos;
 	vector<vector<double>> nextPos;
-	double dt;
 
 	double advancePos(double q, double oldq, double F);
 	double advanceVel(double newq, double oldq);
-
 };
 
 
-class LeapFrog :
+class VelVerlet :
 	public Integrator
 {
 public:
-	LeapFrog(Atoms* atoms);
+	VelVerlet(Atoms* atoms, double T, double dt, double relaxation_time);
+	~VelVerlet();
 
-	void update(vector<vector<double>>* forces);
+	void update(Atoms* atoms, vector<vector<double>>* forces, Ensemble* ens);
+
+private:
+	double T;
+	double zeta = 0;
+	double Ms;
+	vector<vector<double>> acc;
+
+	void calculateAcceleration(Atoms* atoms, vector<vector<double>>* forces);
+	void updateZeta(Atoms* atoms, vector<vector<double>>* forces);
+	void updatePos(Atoms* atoms);
+	void updateVel(Atoms* atoms, vector<vector<double>> nextForces);
 };
 
 #endif // !_integrator_h

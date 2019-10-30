@@ -164,6 +164,7 @@
     <ClInclude Include="Analysis.h" />
     <ClInclude Include="Atoms.h" />
     <ClInclude Include="CellBuilder.h" />
+    <ClInclude Include="dataType.h" />
     <ClInclude Include="Ensemble.h" />
     <ClInclude Include="Integrator.h" />
     <ClInclude Include="Potential.h" />

@@ -65,6 +65,9 @@
     <ClInclude Include="Analysis.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="dataType.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="MDsimulator.rc">

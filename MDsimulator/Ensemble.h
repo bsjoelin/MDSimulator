@@ -3,31 +3,33 @@
 
 #include "Potential.h"
 #include "Integrator.h"
+#include "dataType.h"
+
 
 class Ensemble
 {
 public:
-	Ensemble(Atoms* atoms, PotType potT, InteType intT, double diff_t);
+	Ensemble(Atoms* atoms, dataT* data);
 	~Ensemble();
 
 	double calculate();
+	vector<vector<double>> getForces();
 	void printForces();
+
 	virtual void update() = 0;
-
-
 
 protected:
 	Atoms* atoms;
 	vector<vector<double>> forces;
 	Potential* Pot;
-	Integrator* Inte;
+	Integrator* InteEngine;
 };
 
 class NVE :
 	public Ensemble
 {
 public:
-	NVE(Atoms* a, PotType potT, InteType intT, double diff_t);
+	NVE(Atoms* a, dataT* data);
 
 	void update();
 };

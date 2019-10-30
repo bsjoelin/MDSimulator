@@ -8,6 +8,7 @@
 #include "VelocityManager.h"
 #include "Ensemble.h"
 #include "Analysis.h"
+#include "dataType.h"
 using namespace std;
 
 const double kB = 1.38065e-23;
@@ -15,12 +16,6 @@ const double AVOGADRO = 6.022045e+23;
 const string INFILE = "parameters.inp";
 const string OUTFILE = "sim.out";
 
-struct dataT {
-	int nAtoms, simSteps;  //number of atoms, number of MD steps.
-	double T, rho, P, dt_ps;  //temperature, density, pressure, delta time [ps].
-	double epsK, sigma, r_co;  // epsilon/K, sigma, potential cut_off.
-	double dt_s, T_s;  // Reduced timestep, reduced temperature
-} dataContainer;
 
 void GetParameters(dataT* data);
 void InitializeSetup(Atoms* atoms, dataT* data);
@@ -30,14 +25,17 @@ int main()
 {
 	ofstream logger;
 	logger.open(OUTFILE);
+	
 	if (!logger.is_open()) {
 		cout << "Couldn't open output file. Exiting." << endl;
 		return 0;
 	}
+
+	struct dataT dataContainer;
 	GetParameters(&dataContainer);
 	Atoms atoms(dataContainer.nAtoms);
 	InitializeSetup(&atoms, &dataContainer);
-	Ensemble* ens = new NVE(&atoms, PotType::LJ, InteType::VERLET, dataContainer.dt_s);
+	Ensemble* ens = new NVE(&atoms, &dataContainer);
 	AnalysisTools::LinearRegressor reg = AnalysisTools::LinearRegressor();
 
 	double U, K, t = 0;
@@ -75,15 +73,26 @@ void GetParameters(dataT *d) {
 		inputFile >> d->nAtoms >> d->simSteps >> d->dt_ps >> d->T >>
 			d->rho >> d->P >> d->epsK >> d->sigma >> d->r_co;
 
-		// do something
+		d->tau_s = 0.0;
+
+		// Calculate values
 		double mu = (Atoms::mass * Atoms::mass) / (2 * Atoms::mass) 
 			/ (AVOGADRO * 1000.0);
 
 		d->dt_s = pow(d->epsK * kB / (mu * pow(d->sigma, 2)), 0.5) 
 			* 1.0e-12 * 1.0e+10 * d->dt_ps;
 
+		// The reduced temperature is given by T_s = T * kB / eps = T / epsK
 		d->T_s = d->T / d->epsK;
+
+		// The reduced relaxation can be determined from the factor for dt_s
+		d->tau_s_s = d->tau_s * d->dt_s / d->dt_ps;
+
+		// Set integrator and potential
+		d->IT = InteType::VELVERLET;
+		d->PT = PotType::LJ;
 		
+		// Close the input file.
 		inputFile.close();
 	}
 	else {
