@@ -5,33 +5,68 @@
 #include "Integrator.h"
 #include "dataType.h"
 
-
+// Class representing any ensemble (NVE, NVT, ...), which works as an interface
+// with a few functions, which it passes on to its children.
 class Ensemble
 {
 public:
+	// Constructor and destrutor, which creates the correct Potential engine and
+	// Integrator scheme, and takes care of destroying them when the ensemble is.
 	Ensemble(Atoms* atoms, dataT* data);
-	~Ensemble();
+	virtual ~Ensemble();
 
+	// Public function for calculating energy and forces of the inherent Atoms object
 	double calculate();
+	// Calculate the pressure of the system
+	double getPressure();
+	// Public function for getting the forces from the Potential
 	vector<vector<double>> getForces();
+	// Function for timing reasons - determines when to recalculate distances and
+	// forces for the Atoms object
+	void resetPot();
+	// Print the forces vector to std::out
 	void printForces();
 
-	virtual void update() = 0;
+	// Abstract function for updating the positions and velocities of the Atoms
+	// object to the next time step. Must be implemented by children
+	virtual double update() = 0;
 
 protected:
-	Atoms* atoms;
+	// The forces vector
 	vector<vector<double>> forces;
+	// Pointers to the inherent Atoms, Potential and Integrator objects
+	Atoms* atoms;
 	Potential* Pot;
 	Integrator* InteEngine;
 };
 
+// Implementation of an NVE ensemble, which inherits from Ensemble
 class NVE :
 	public Ensemble
 {
 public:
-	NVE(Atoms* a, dataT* data);
+	// Constructor
+	NVE(Atoms* atoms, dataT* data);
 
-	void update();
+	// Implementation of the abstrabt function update()
+	double update();
+};
+
+// Implementation of an NVT ensemble, which inherits from Ensemble
+class NVT :
+	public Ensemble
+{
+public:
+	// Constructor
+	NVT(Atoms* atoms, dataT* data);
+
+	// Implementation of the abstract function update()
+	// Updates the positions and velocities and returns the energy of the
+	// extended system
+	double update();
+
+private:
+
 };
 
 #endif // !_ensemble_h

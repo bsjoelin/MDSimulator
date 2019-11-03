@@ -1,38 +1,53 @@
-#ifndef _Atoms_h
-#define _Atoms_h
+#ifndef _atoms_h
+#define _atoms_h
 
 #include <vector>
-#include <iostream>
 
 using namespace std;
 
-
+// A class that works as a container for single atoms, so can be a representation
+// of any number of atoms and/or molecules. It keeps track of position, velocity
+// and maybe mass at some point.
 class Atoms {
 public:
+	// Constructor and destructor for object. The constructur takes the number of
+	// atoms it will contain.
 	Atoms(int natoms);
-	~Atoms();
+	virtual ~Atoms();
 
+	// Functions for centering the positions and velocities, so the weighted
+	// average is zero in all cartesian coordinates.
 	void center();
 	void centerVel();
-	void print(bool printAverage);
+
+	// Functions for printing the positions and velocities to the console
+	void print();
 	void printVel();
 
-	int getSize();
-	double getCellLength();
-	vector<double> getPos(int i);
-	vector<double> getVel(int i);
-	double getEnergy();
+	// Function for calculating all the interatomic distances
+	vector<vector<double>> getDistances();
 
-	void setPos(int i, vector<double> r);
-	void setVel(int i, vector<double> r);
-	void setCellLength(double length);
+	// Getter functions for the object members
+	int getSize();  // Get number of atoms
+	double getCellLength();  // Get the side length of the cell [dimensionless]
+	vector<double> getPos(int i);  // Get the position vector of atom i
+	vector<double> getVel(int i);  // Get the velocity vector of atom i
+	double getEnergy();  // Get the kinetic energy of all the atoms
 
-	static constexpr double mass = 39.948;
+	// Setter functions for the object members
+	void setPos(int i, vector<double> r);  // Set the position vector of atom i as r
+	void setVel(int i, vector<double> r);  // Set the velocity vector of atom i as r
+	void setCellLength(double length);  // Set the side length of the cell
+
+	static constexpr double mass = 39.948;  // Mass of Argon [unit mass]
 
 private:
-	int nAtoms;
-	double cellLength;
-	vector<vector<double> > pos, vel;
+	// Used for determining when to recalculate distance matrix
+	bool positionsChanged = true;
+	int nAtoms;  // The number of atoms
+	double cellLength;  // The side length of the cell
+	vector<vector<double> > pos, vel;  // Position and velocity vectors
+	vector<vector<double>> distances;
 };
 
-#endif
+#endif // !_atoms_h

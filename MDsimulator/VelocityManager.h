@@ -2,23 +2,20 @@
 #define _velocitymanager_h
 
 #include "Atoms.h"
-#include <random>
-#include <cmath>
-#include "time.h"
 
+// Static class for initializing the velocities to a proper gaussian distibution
+// and make sure that it corresponds to the given temperature.
 class VelocityManager {
 public:
-	VelocityManager();
-	~VelocityManager();
-	void initializeVelocities(Atoms* atoms, double temperature);
+	// Static function for initializing the velocities of an Atoms object to
+	// correspond to a proper gaussian distribution, which has a kinetic energy
+	// in accordance to the temperature given.
+	static void initializeVelocities(Atoms* atoms, double temperature);
 
 private:
-	default_random_engine e{ static_cast<long unsigned int>(time(0)) };
-	uniform_real_distribution<double> d{0, 1};
-	static constexpr double kB = 1.38064e-23;
-	static constexpr double unitMass = 1.6726219e-27;
-
-	double gaussianN(double mass, double temperature);
+	// Private helper function for generating a gaussian number from a uniform
+	// distribution in [0, 1].
+	static double gaussianN(double mass, double temperature);
 };
 
 #endif // !_velocitymanager_h

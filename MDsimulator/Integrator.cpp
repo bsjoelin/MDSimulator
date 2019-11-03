@@ -1,6 +1,7 @@
 #include "Integrator.h"
 #include "Ensemble.h"
 
+// The constructor initializes and populates the new and old positions vectors
 Verlet::Verlet(Atoms* a, vector<vector<double>>* F, double diff_t)
 	: oldPos(a->getSize(), vector<double>(3, 0)),
 	nextPos(a->getSize(), vector<double>(3, 0))
@@ -17,15 +18,19 @@ Verlet::Verlet(Atoms* a, vector<vector<double>>* F, double diff_t)
 	}
 }
 
+// The destructor releases memory from the internal vectors
 Verlet::~Verlet() {
-	oldPos.clear();
-	nextPos.clear();
+	vector<vector<double>>().swap(oldPos);
+	vector<vector<double>>().swap(nextPos);
 }
 
 // The update leaves the positions and the velocities at the same time step.
 void Verlet::update(Atoms* a, vector<vector<double>>* F, Ensemble* ens) {
+	// Run through all the atoms and update their positions and velocities
 	for (int i = 0; i < a->getSize(); i++) {
+		// Positions at t + 2dt
 		vector<double> nextnextq = vector<double>(3, 0);
+		// Empty velocity vector
 		vector<double> v = vector<double>(3, 0);
 		for (int j = 0; j < 3; j++) {
 			nextnextq[j] = advancePos(nextPos[i][j], a->getPos(i)[j], (*F)[i][j]);
@@ -33,22 +38,28 @@ void Verlet::update(Atoms* a, vector<vector<double>>* F, Ensemble* ens) {
 		}
 
 		// Update all stored variables
-		oldPos[i] = a->getPos(i);
-		a->setPos(i, nextPos[i]);  // at t
-		nextPos[i] = nextnextq;
-		a->setVel(i, v);  // at t
+		oldPos[i] = a->getPos(i);  // q(t - dt) = q(t)
+		a->setPos(i, nextPos[i]);  // q(t) = q(t + dt)
+		nextPos[i] = nextnextq;    // q(t + dt) = q(t + 2dt)
+		a->setVel(i, v);
 	}
+	// Let the potential recalculate the forces
+	ens->resetPot();
 }
 
 double Verlet::advancePos(double q, double oldq, double acc) {
+	// q(t + dt) = 2q(t) - q(t - dt) + a(t) * dt * dt
 	return 2.0 * q - oldq + acc * dt * dt;
 }
 
 double Verlet::advanceVel(double nextq, double oldq) {
+	// v(t + dt) = (q(t + dt) - q(t - dt)) / 2dt
 	return (nextq - oldq) / (2.0 * dt);
 }
 
 
+// The constructor calculates the thermal mass and initializes internal
+// memory members
 VelVerlet::VelVerlet(Atoms* a, double temperature, double diff_t, double rel_t)
 	: acc(a->getSize(), vector<double>(3, 0))
 {
@@ -57,22 +68,32 @@ VelVerlet::VelVerlet(Atoms* a, double temperature, double diff_t, double rel_t)
 	Ms = 3.0 * a->getSize() * temperature * rel_t * rel_t;  // rel_t unitless
 }
 
+// The destructor releases the memory of the acceleration vector
 VelVerlet::~VelVerlet() {
-	acc.clear();
+	vector<vector<double>>().swap(acc);
 }
 
+// The update() function works for both NVE and NVT, i.e. in NVT reduecs to
+// NVE when zeta = 0. So regardsless of the value of zeta, the function updates
+// the positions and velocities to the next time step
 void VelVerlet::update(Atoms* a, vector<vector<double>>* F, Ensemble* ens) {
+	// Calculate all the accelarations
 	calculateAcceleration(a, F);
 	if (Ms != 0.0) {  // if we are not using NVT, we just don't update zeta
 		updateZeta(a, F);
 	}
+	// Update the postions in the Atoms object
 	updatePos(a);
-	// get the forces from the advanced positions
+	// The Velocity Verlet method use the forces from the next iteration, so
+	// we recalculate the forces from the now updated positions
+	ens->resetPot();
 	vector<vector<double>> nextForces = ens->getForces();
 	updateVel(a, nextForces);
 }
 
+// Function for calculating all the accelerations
 void VelVerlet::calculateAcceleration(Atoms* a, vector<vector<double>>* F) {
+	// In the case of NVE, zeta = 0, so the calculation reduces to a = F / m
 	for (int i = 0; i < a->getSize(); i++) {
 		vector<double> v = a->getVel(i);
 		for (int j = 0; j < 3; j++) {
@@ -81,8 +102,9 @@ void VelVerlet::calculateAcceleration(Atoms* a, vector<vector<double>>* F) {
 	}
 }
 
+// Function for updating the frcition coefficient
 void VelVerlet::updateZeta(Atoms* a, vector<vector<double>>* F) {
-	// Calculate the sum of velocity times force
+	// Calculate the sum of velocity times acceleration
 	double forcepos = 0;
 	for (int i = 0; i < a->getSize(); i++) {
 		vector<double> v = a->getVel(i);
@@ -95,24 +117,29 @@ void VelVerlet::updateZeta(Atoms* a, vector<vector<double>>* F) {
 	zeta += dt / Ms * (a->getEnergy() - 3.0 * a->getSize() * T + dt * forcepos);
 }
 
+// Function for updating the positions
 void VelVerlet::updatePos(Atoms* a) {
 	for (int i = 0; i < a->getSize(); i++) {
 		vector<double> nextq = { 0.0, 0.0, 0.0 };
 		vector<double> q = a->getPos(i);
 		vector<double> v = a->getVel(i);
 		for (int j = 0; j < 3; j++)	{
+			// q(t + dt) = q(t) + v(t) * dt + 1 / 2 * a(t) * dt * dt
 			nextq[j] = q[j] + v[j] * dt + 1.0 / 2.0 * acc[i][j] * dt * dt;
 		}
 		a->setPos(i, nextq);
 	}
 }
 
+// Function for updating the positions
 void VelVerlet::updateVel(Atoms* a, vector<vector<double>> nF) {
 	for (int i = 0; i < a->getSize(); i++) {
 		vector<double> nextv = { 0.0, 0.0, 0.0 };
 		vector<double> v = a->getVel(i);
 		for (int j = 0; j < 3; j++) {
-			nextv[j] = v[j] + dt / 2.0 * (acc[i][j] + nF[i][j])
+			// v(t + dt) = (v(t) + 0.5 * dt * (a(t) + a(t + dt)) 
+			//    / (1 + zeta(t + dt) * 0.5 * dt
+			nextv[j] = (v[j] + dt / 2.0 * (acc[i][j] + nF[i][j]))
 				/ (1.0 + zeta * dt / 2.0);
 		}
 		a->setVel(i, nextv);

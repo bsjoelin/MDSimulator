@@ -1,6 +1,7 @@
 #ifndef _datatype_h
 #define _datatype_h
 
+// Structure class to contain the parameters of the MD simulation
 struct dataT {
 	int nAtoms;			// Number of atoms
 	int simSteps;		// Number of MD steps
