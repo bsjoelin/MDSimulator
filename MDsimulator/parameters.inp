@@ -7,6 +7,7 @@
 119.8
 3.405
 3.5
+0.08
 !
 !     nAtoms    = total number of atoms
 !     simSteps  = no. MD steps 
@@ -17,4 +18,5 @@
 !	  epsk		= well-depth of potential divided by k_B (Kelvin)
 !	  sigma		= the atomic size (Angstrom)
 !	  r_co		= radial cut-off for potential (Angstrom) #NotYetImplemented
+!	  tau_s		= thermal relaxation time (ps)
 !

@@ -22,15 +22,11 @@ public:
 
 	// Function for retrieving the sum of force interactions ((r_i - r_j) * F_ji)
 	double getSumForcesInteraction();
-	// Let the potential recalculate distances and forces
-	void reset();
 
 // The following menbers are protected, so they are inherited by implementing
 // classes
 protected:
 	Atoms* atoms;
-	// This is for the allowing the recalculation of the forces
-	bool forcesCalculated = false;
 	// Keep the results of distances and forces in memory to reduce
 	// computational cost
 	double sumForceInteractions = 0;
@@ -48,8 +44,7 @@ public:
 	// Implements the abstract functions getEnergy() and getForces()
 	double getEnergy();
 	vector<vector<double>> getForces();
-	// Helper functions for writing the distance matrix or force vector to console
-	void printDistances();
+	// Helper functions for writing the force vector to console
 	void printForces(vector<vector<double>> F);
 };
 

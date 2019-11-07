@@ -60,6 +60,19 @@ void Atoms::printVel() {
 	cout << endl;
 }
 
+// Helper function for printing the distance matrix to the console
+void Atoms::printDistances() {
+	if (positionsChanged) {
+		distances = this->getDistances();
+	}
+	for (vector<double> p : distances) {
+		for (double d : p) {
+			cout << d << ", ";
+		}
+		cout << "\n";
+	}
+}
+
 // The getDistances() function calculates all interatomic distances with
 // periodic boundary conditions and returns these. The calculation is only
 // performed, if the atomic positions have changed
@@ -169,6 +182,11 @@ double Atoms::getEnergy() {
 	}
 	// Multiply by the factor of a half
 	return K / 2.0;
+}
+
+//
+bool Atoms::hasChangedPositions() {
+	return positionsChanged;
 }
 
 // Setter for the position vector of atom i

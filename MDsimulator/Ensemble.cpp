@@ -63,11 +63,6 @@ vector<vector<double>> Ensemble::getForces() {
 	return Pot->getForces();
 }
 
-// Lets the Potential recalculate distances and forces
-void Ensemble::resetPot() {
-	Pot->reset();
-}
-
 // Simple printing function for printing the forces to the console
 void Ensemble::printForces() {
 	vector<double> av = { 0.0, 0.0, 0.0 };
@@ -98,12 +93,17 @@ double NVE::update() {
 
 // The constructor for NVT calls the Ensemble constructor
 NVT::NVT(Atoms* a, dataT* d)
-	: Ensemble(a, d) {}
+	: Ensemble(a, d) 
+{
+	T = d->T_s;
+	Ms = 3.0 * a->getSize() * T * d->tau_s_s * d->tau_s_s;  // rel_t unitless
+}
 
 // The update() function asks the Integrator to update, and the returns the
 // energy of the extended system
 double NVT::update() {
 	InteEngine->update(atoms, &forces, this);
 	// add the energy from the extended system
-	return 0;  // Must be the energy of the extended system
+	InteEngine->updateNvtParameters(&ln_s, &zeta);
+	return zeta * zeta * Ms / 2.0 + 3.0 * atoms->getSize() * T * ln_s;
 }

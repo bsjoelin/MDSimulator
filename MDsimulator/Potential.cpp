@@ -20,11 +20,6 @@ double Potential::getSumForcesInteraction() {
 	return sumForceInteractions;
 }
 
-// Let the forces be recalculated
-void Potential::reset() {
-	forcesCalculated = false;
-}
-
 // Constructor for the Lennard-Jones potential initializes as a Potential
 LJ::LJ(Atoms* a) :
 	Potential(a) {}
@@ -47,8 +42,8 @@ double LJ::getEnergy() {
 }
 
 vector<vector<double>> LJ::getForces() {
-	// Only recalculate the forces, if they need to be
-	if (forcesCalculated) {
+	// Only recalculate the forces, if the atomic positions have changed
+	if (!(atoms->hasChangedPositions())) {
 		return forces;
 	}
 	// Get the distances
@@ -61,9 +56,9 @@ vector<vector<double>> LJ::getForces() {
 	vector<vector<double>> F(atoms->getSize(), vector<double>(3, 0));
 	for (int i = 0; i < atoms->getSize() - 1; i++) {
 		for (int j = i + 1; j < atoms->getSize(); j++) {
-			// scalar force divided by distance
-			double pf = 48 / dist[i][j] * (pow(1 / dist[i][j], 14.0)
-				- 0.5 * pow(1 / dist[i][j], 8.0));
+			// force prefactor
+			double pf = 48 * ( pow(1 / dist[i][j], 14.0) 
+				- 0.5 * pow(1 / dist[i][j], 8.0) );
 			for (int k = 0; k < 3; k++)	{
 				// Calculate the pbc distance per axis
 				double diff = atoms->getPos(i)[k] - atoms->getPos(j)[k];
@@ -83,19 +78,7 @@ vector<vector<double>> LJ::getForces() {
 	}
 	// Save the forces to the internal memory
 	forces = F;
-	// The forces have now been calculated
-	forcesCalculated = true;
 	return F;
-}
-
-// Helper function for printing the distance matrix to the console
-void LJ::printDistances() {
-	for (vector<double> p : dist) {
-		for (double d : p) {
-			cout << d << ", ";
-		}
-		cout << "\n";
-	}
 }
 
 // Helper function for printing the forces vector to the console

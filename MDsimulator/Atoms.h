@@ -20,9 +20,10 @@ public:
 	void center();
 	void centerVel();
 
-	// Functions for printing the positions and velocities to the console
+	// Functions for printing the positions, velocities and distances to the console
 	void print();
 	void printVel();
+	void printDistances();
 
 	// Function for calculating all the interatomic distances
 	vector<vector<double>> getDistances();
@@ -33,6 +34,7 @@ public:
 	vector<double> getPos(int i);  // Get the position vector of atom i
 	vector<double> getVel(int i);  // Get the velocity vector of atom i
 	double getEnergy();  // Get the kinetic energy of all the atoms
+	bool hasChangedPositions();  // Get whether or not the positions have changed
 
 	// Setter functions for the object members
 	void setPos(int i, vector<double> r);  // Set the position vector of atom i as r

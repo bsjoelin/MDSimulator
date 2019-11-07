@@ -14,6 +14,9 @@ struct dataT {
 	double r_co;		// Potential cut_off [Angstrom]
 	double tau_s;		// Relaxation time for heat bath [ps]
 
+	// Derived values
+	double eps;			// epsilon [eV]
+
 	// Dimensionless values
 	double dt_s;		// Reduced timestep
 	double T_s;			// Reduced temperature

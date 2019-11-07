@@ -19,9 +19,19 @@ public:
 	virtual void update(Atoms* atoms, vector<vector<double>>* forces,
 		Ensemble* ens) = 0;
 
+	// Functions for sending internal parameters up the chain for support for
+	// a wide variety of ensembles
+	void updateNvtParameters(double* ln_s, double* zeta);
+
 protected:
 	// The time step
 	double dt = 0;
+
+	// NVT parameters
+	double T = 1;		// temperature
+	double zeta = 0;	// 'friction' coefficient
+	double Ms = 0.0;	// thermal mass (reduced)
+	double ln_s = 0;	// natural log of scaling
 };
 
 // Implementation of the Verlet integrator scheme. Implements Integrator class
@@ -61,9 +71,6 @@ public:
 	void update(Atoms* atoms, vector<vector<double>>* forces, Ensemble* ens);
 
 private:
-	double T;  // temperature
-	double zeta = 0;  // 'friction' coefficient
-	double Ms;  //  thermal mass
 	vector<vector<double>> acc;  // saving the acceleration, since it's used often
 
 	// Private functions for making the update work

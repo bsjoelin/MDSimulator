@@ -21,9 +21,6 @@ public:
 	double getPressure();
 	// Public function for getting the forces from the Potential
 	vector<vector<double>> getForces();
-	// Function for timing reasons - determines when to recalculate distances and
-	// forces for the Atoms object
-	void resetPot();
 	// Print the forces vector to std::out
 	void printForces();
 
@@ -66,7 +63,10 @@ public:
 	double update();
 
 private:
-
+	double ln_s = 0;	// the natural logrithm of the scaling factor
+	double zeta = 0;	// the friction coefficient
+	double Ms;			// the thermal mass (reduced)
+	double T;			// the reduced temperature
 };
 
 #endif // !_ensemble_h

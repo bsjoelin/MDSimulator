@@ -1,6 +1,13 @@
 #include "Integrator.h"
 #include "Ensemble.h"
 
+
+void Integrator::updateNvtParameters(double* _ln_s, double* _zeta) {
+	*_ln_s = ln_s;
+	*_zeta = zeta;
+}
+
+
 // The constructor initializes and populates the new and old positions vectors
 Verlet::Verlet(Atoms* a, vector<vector<double>>* F, double diff_t)
 	: oldPos(a->getSize(), vector<double>(3, 0)),
@@ -43,8 +50,6 @@ void Verlet::update(Atoms* a, vector<vector<double>>* F, Ensemble* ens) {
 		nextPos[i] = nextnextq;    // q(t + dt) = q(t + 2dt)
 		a->setVel(i, v);
 	}
-	// Let the potential recalculate the forces
-	ens->resetPot();
 }
 
 double Verlet::advancePos(double q, double oldq, double acc) {
@@ -86,7 +91,6 @@ void VelVerlet::update(Atoms* a, vector<vector<double>>* F, Ensemble* ens) {
 	updatePos(a);
 	// The Velocity Verlet method use the forces from the next iteration, so
 	// we recalculate the forces from the now updated positions
-	ens->resetPot();
 	vector<vector<double>> nextForces = ens->getForces();
 	updateVel(a, nextForces);
 }
@@ -102,19 +106,24 @@ void VelVerlet::calculateAcceleration(Atoms* a, vector<vector<double>>* F) {
 	}
 }
 
-// Function for updating the frcition coefficient
+// Function for updating the friction coefficient
 void VelVerlet::updateZeta(Atoms* a, vector<vector<double>>* F) {
 	// Calculate the sum of velocity times acceleration
 	double forcepos = 0;
 	for (int i = 0; i < a->getSize(); i++) {
 		vector<double> v = a->getVel(i);
 		for (int j = 0; j < 3; j++)	{
-			forcepos += v[i] * acc[i][j];
+			forcepos += v[j] * acc[i][j];
 		}
 	}
+	// Calculate the rate of change of zeta
+	double dotZeta = (2.0 * a->getEnergy() - 3.0 * a->getSize() * T) / Ms;
+
+	// Update ln(s)
+	ln_s += zeta * dt + 1.0 / 2.0 * dotZeta * dt * dt;
 
 	// Update zeta
-	zeta += dt / Ms * (a->getEnergy() - 3.0 * a->getSize() * T + dt * forcepos);
+	zeta += dt * (dotZeta + dt / Ms * forcepos);
 }
 
 // Function for updating the positions
@@ -131,7 +140,7 @@ void VelVerlet::updatePos(Atoms* a) {
 	}
 }
 
-// Function for updating the positions
+// Function for updating the velocities
 void VelVerlet::updateVel(Atoms* a, vector<vector<double>> nF) {
 	for (int i = 0; i < a->getSize(); i++) {
 		vector<double> nextv = { 0.0, 0.0, 0.0 };
@@ -145,4 +154,3 @@ void VelVerlet::updateVel(Atoms* a, vector<vector<double>> nF) {
 		a->setVel(i, nextv);
 	}
 }
-
