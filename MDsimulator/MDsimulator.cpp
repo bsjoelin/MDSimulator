@@ -49,7 +49,7 @@ int main()
 	InitializeSetup(&atoms, &dataContainer);
 
 	// Create an Ensemble object, passing the Atoms object and data container
-	Ensemble* ens = new NVT(&atoms, &dataContainer); // should take the Ensemble type as parameter
+	Ensemble* ens = new NVE(&atoms, &dataContainer); // should take the Ensemble type as parameter
 	
 	// Initialize a linear regressor to take care of calculating the deviation in
 	// the (extended) Hamiltonian
@@ -66,7 +66,7 @@ int main()
 	logger << t << "\t" << U << "\t" << K << "\t" << 0.0 << "\t" << K + U << endl;
 
 	// Add the first point to the regressor
-	reg.addPoint(t, K + U);
+	reg.addPoint(t, K + U);  // Hx = 0 in the start
 
 	// The MD loop of the program
 	for (int i = 1; i <= dataContainer.simSteps; i++)
@@ -124,7 +124,7 @@ void GetParameters(dataT *d) {
 		d->tau_s_s = d->tau_s * d->dt_s / d->dt_ps;
 
 		// Set integrator and potential
-		d->IT = InteType::VELVERLET;
+		d->IT = InteType::VERLET;
 		d->PT = PotType::LJ;
 		
 		// Close the input file.

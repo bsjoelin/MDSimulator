@@ -33,22 +33,26 @@ Verlet::~Verlet() {
 
 // The update leaves the positions and the velocities at the same time step.
 void Verlet::update(Atoms* a, vector<vector<double>>* F, Ensemble* ens) {
-	// Run through all the atoms and update their positions and velocities
+	// Update the positions
 	for (int i = 0; i < a->getSize(); i++) {
-		// Positions at t + 2dt
-		vector<double> nextnextq = vector<double>(3, 0);
+		oldPos[i] = a->getPos(i);	// q(t - dt) = q(t)
+		a->setPos(i, nextPos[i]);	// q(t) = q(t + dt)
+	}
+	// Calculate new forces
+	vector<vector<double>> forces = ens->getForces();
+
+	// Run through all the atoms and calculate new positions and velocities
+	for (int i = 0; i < a->getSize(); i++) {
 		// Empty velocity vector
 		vector<double> v = vector<double>(3, 0);
 		for (int j = 0; j < 3; j++) {
-			nextnextq[j] = advancePos(nextPos[i][j], a->getPos(i)[j], (*F)[i][j]);
+			nextPos[i][j] = advancePos(a->getPos(i)[j], oldPos[i][j],
+				forces[i][j]);		// q(t + dt)
 			v[j] = advanceVel(nextPos[i][j], oldPos[i][j]);
 		}
 
-		// Update all stored variables
-		oldPos[i] = a->getPos(i);  // q(t - dt) = q(t)
-		a->setPos(i, nextPos[i]);  // q(t) = q(t + dt)
-		nextPos[i] = nextnextq;    // q(t + dt) = q(t + 2dt)
-		a->setVel(i, v);
+		// Update the velocities
+		a->setVel(i, v);			// v(t) = v(t + dt)
 	}
 }
 

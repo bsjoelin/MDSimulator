@@ -8,15 +8,21 @@
 3.405
 3.5
 0.08
+NVE
+LJ
+VERLET
 !
-!     nAtoms    = total number of atoms
-!     simSteps  = no. MD steps 
-!     timeps    = time step in pico seconds (1ps = 10^-12s)
-!	  T			= temperature of initial system (Kelvin)
-!	  rho		= density of the system (g/cm^3)
-!	  P			= pressure of the system (Pa) #NotYetImplemented
-!	  epsk		= well-depth of potential divided by k_B (Kelvin)
-!	  sigma		= the atomic size (Angstrom)
-!	  r_co		= radial cut-off for potential (Angstrom) #NotYetImplemented
-!	  tau_s		= thermal relaxation time (ps)
+!	nAtoms		= total number of atoms
+!	simSteps	= no. MD steps 
+!	timeps		= time step in pico seconds (1ps = 10^-12s)
+!	T			= temperature of initial system (Kelvin)
+!	rho			= density of the system (g/cm^3)
+!	P			= pressure of the system (Pa) #NotYetImplemented
+!	epsk		= well-depth of potential divided by k_B (Kelvin)
+!	sigma		= the atomic size (Angstrom)
+!	r_co		= radial cut-off for potential (Angstrom) #NotYetImplemented
+!	tau_s		= thermal relaxation time (ps)
+!	ensT		= the ensemble type to use #ParsingNotYetImplemented
+!	potT		= the potential to use #ParsingNotYetImplemented
+!	intT		= the integrator to use #ParsingNotYetImplemented
 !
