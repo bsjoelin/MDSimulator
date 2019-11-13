@@ -12,13 +12,15 @@ class Potential
 {
 public:
 	// Constructor and destructor
-	Potential(Atoms* atoms);
+	Potential(Atoms* atoms, double numberDensity, double radialCutOff);
 	virtual ~Potential();
 
 	// Function for getting the potential energy of the collection of atoms
 	virtual double getEnergy() = 0;
 	// Function for getting the forces on every atom
 	virtual vector<vector<double>> getForces() = 0;
+	// Calculate the pressure tail correction resulting from the cut-off
+	virtual double getPressureCorrection() = 0;
 
 	// Function for retrieving the sum of force interactions ((r_i - r_j) * F_ji)
 	double getSumForcesInteraction();
@@ -27,6 +29,8 @@ public:
 // classes
 protected:
 	Atoms* atoms;
+	double numberDensity;	// number density (dimension-less)
+	double r_c;				// radial cut-off (dimension-less)
 	// Keep the results of distances and forces in memory to reduce
 	// computational cost
 	double sumForceInteractions = 0;
@@ -39,13 +43,25 @@ class LJ :
 	public Potential
 {
 public:
-	LJ(Atoms* a);
+	LJ(Atoms* a, double numberDensity, double radialCutoff);
 
 	// Implements the abstract functions getEnergy() and getForces()
 	double getEnergy();
 	vector<vector<double>> getForces();
+	// Calculate the pressure tail correction resulting from the cut-off
+	double getPressureCorrection();
+	
 	// Helper functions for writing the force vector to console
 	void printForces(vector<vector<double>> F);
+
+private:
+	double cutoffEnergy;	// the energy at the cut-off
+	double cutoffForce;		// the force at the cut-off
+
+	// Calculate the energy between a single pair, and handle cut-off
+	double calculateEnergy(double distance);
+	// Calculate the energy tail correction resulting from the cut-off
+	double calculateEnergyCorrection();
 };
 
 #endif // !_potential_h

@@ -11,11 +11,11 @@ Ensemble::Ensemble(Atoms* a, dataT* d)
 	switch (d->PT)
 	{
 	case PotType::LJ:
-		Pot = new LJ(atoms);
+		Pot = new LJ(atoms, d->rhoN, d->r_co);
 		break;
 	// default is a Lennard-Jones Potential
 	default:
-		Pot = new LJ(atoms);
+		Pot = new LJ(atoms, d->rhoN, d->r_co);
 		break;
 	}
 
@@ -54,7 +54,8 @@ double Ensemble::calculate() {
 
 double Ensemble::getPressure() {
 	return (2 * atoms->getEnergy() + Pot->getSumForcesInteraction())
-		/ (3 * pow(atoms->getCellLength(), 3.0));
+		/ (3 * pow(atoms->getCellLength(), 3.0))
+		+ Pot->getPressureCorrection();
 }
 
 // Wrapper for getting the forces from the potential, when the stored forces

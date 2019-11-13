@@ -1,6 +1,9 @@
 #ifndef _datatype_h
 #define _datatype_h
 
+enum class InteType;
+enum class PotType;
+
 // Structure class to contain the parameters of the MD simulation
 struct dataT {
 	int nAtoms;			// Number of atoms
@@ -19,6 +22,7 @@ struct dataT {
 
 	// Dimensionless values
 	double dt_s;		// Reduced timestep
+	double rhoN;		// Reduced number density
 	double T_s;			// Reduced temperature
 	double tau_s_s;		// Reduced heat bath relaxation time 
 

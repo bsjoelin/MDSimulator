@@ -49,7 +49,7 @@ int main()
 	InitializeSetup(&atoms, &dataContainer);
 
 	// Create an Ensemble object, passing the Atoms object and data container
-	Ensemble* ens = new NVE(&atoms, &dataContainer); // should take the Ensemble type as parameter
+	Ensemble* ens = new NVT(&atoms, &dataContainer); // should take the Ensemble type as parameter
 	
 	// Initialize a linear regressor to take care of calculating the deviation in
 	// the (extended) Hamiltonian
@@ -89,8 +89,8 @@ int main()
 	// Close the logger and write regression data to the console
 	logger.close();
 	cout << "dt = " << dataContainer.dt_ps << endl;
-	cout << "a = " << reg.getSlope() << endl;
-	cout << "b = " << reg.getIntersect() << endl;
+	cout << "a = " << reg.getSlope() << " eV/ps" << endl;
+	cout << "b = " << reg.getIntersect() << " eV" << endl;
 	cout << "P = " << ens->getPressure() * dataContainer.epsK * kB
 		/ pow(dataContainer.sigma, 3.0) * 1e30 << " Pa" << endl;
 
@@ -124,7 +124,7 @@ void GetParameters(dataT *d) {
 		d->tau_s_s = d->tau_s * d->dt_s / d->dt_ps;
 
 		// Set integrator and potential
-		d->IT = InteType::VERLET;
+		d->IT = InteType::VELVERLET;
 		d->PT = PotType::LJ;
 		
 		// Close the input file.
@@ -140,6 +140,7 @@ void GetParameters(dataT *d) {
 void InitializeSetup(Atoms* a, dataT* d) {
 	// Calculate number density in m^{-3}
 	double rhoN = AVOGADRO / a->mass * d->rho * 1e-24 * pow(d->sigma, 3);
+	d->rhoN = rhoN;
 	// Build the cell (with a static call)
 	CellBuilder::buildCell(a, rhoN);
 	// Initialize the velocities

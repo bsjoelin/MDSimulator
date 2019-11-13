@@ -1,5 +1,6 @@
 #include "Atoms.h"
 #include <iostream>
+#include "dataType.h"
 
 // The constructor initializes the position and velocity vectors and the
 // distance matrix to the right size

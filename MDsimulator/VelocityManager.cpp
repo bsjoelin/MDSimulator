@@ -1,7 +1,7 @@
 #define _USE_MATH_DEFINES
 #include "VelocityManager.h"
 #include <random>
-#include <cmath>
+//#include <cmath>
 #include "time.h"
 
 // A struct needed to be able to use the class in a static way, which can

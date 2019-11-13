@@ -2,12 +2,12 @@
 10000
 0.001
 161.73
-0.002986
+0.33
 101325.0
 119.8
 3.405
-3.5
-0.08
+0.0
+0.1
 NVE
 LJ
 VERLET
@@ -20,7 +20,7 @@ VERLET
 !	P			= pressure of the system (Pa) #NotYetImplemented
 !	epsk		= well-depth of potential divided by k_B (Kelvin)
 !	sigma		= the atomic size (Angstrom)
-!	r_co		= radial cut-off for potential (Angstrom) #NotYetImplemented
+!	r_co		= radial cut-off for potential (multiple of sigma) #NotYetImplemented
 !	tau_s		= thermal relaxation time (ps)
 !	ensT		= the ensemble type to use #ParsingNotYetImplemented
 !	potT		= the potential to use #ParsingNotYetImplemented

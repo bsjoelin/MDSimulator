@@ -1,12 +1,16 @@
+#define _USE_MATH_DEFINES
 #include "Potential.h"
 #include <iostream>
 
-// Constructor initializes dist and forces vectors, and links the Atoms object
-Potential::Potential(Atoms* a)
+// Constructor initializes dist and forces vectors, and links the Atoms object.
+// If the radial cut-off is in use, it also calculates constants for this.
+Potential::Potential(Atoms* a, double nDensity, double cutoff)
 	: dist(a->getSize(), vector<double>(a->getSize(), 0)),
 	forces(a->getSize(), vector<double>(3, 0))
 {
 	atoms = a;
+	numberDensity = nDensity;
+	r_c = cutoff;
 }
 
 // Destructor releases the memory of the internal vectors
@@ -21,8 +25,18 @@ double Potential::getSumForcesInteraction() {
 }
 
 // Constructor for the Lennard-Jones potential initializes as a Potential
-LJ::LJ(Atoms* a) :
-	Potential(a) {}
+LJ::LJ(Atoms* a, double nDensity, double cutoff) :
+	Potential(a, nDensity, cutoff) 
+{
+	if (r_c != 0.0) {
+		cutoffEnergy = calculateEnergy(r_c);
+		cutoffForce = 48 * (pow(1.0 / r_c, 13.0) - 0.5 * pow(1.0 / r_c, 7.0));
+	}
+	else {
+		cutoffEnergy = 0.0;
+		cutoffForce = 0.0;
+	}
+}
 
 // Function for returning the potential energy 
 double LJ::getEnergy() {
@@ -34,11 +48,11 @@ double LJ::getEnergy() {
 	// Run over all atom pairs and calculate the energy
 	for (int i = 0; i < atoms->getSize() - 1; i++) {
 		for (int j = i + 1; j < atoms->getSize(); j++) {
-			U += 4.0 * (pow(1.0 / dist[i][j], 12.0) - pow(1.0 / dist[i][j], 6.0));
+			U += calculateEnergy(dist[i][j]);
 		}
 	}
 	// Return the potential energy
-	return U;
+	return U + calculateEnergyCorrection();
 }
 
 vector<vector<double>> LJ::getForces() {
@@ -56,6 +70,9 @@ vector<vector<double>> LJ::getForces() {
 	vector<vector<double>> F(atoms->getSize(), vector<double>(3, 0));
 	for (int i = 0; i < atoms->getSize() - 1; i++) {
 		for (int j = i + 1; j < atoms->getSize(); j++) {
+			if (r_c != 0.0 && r_c < dist[i][j]) {
+				continue;
+			}
 			// force prefactor
 			double pf = 48 * ( pow(1 / dist[i][j], 14.0) 
 				- 0.5 * pow(1 / dist[i][j], 8.0) );
@@ -68,6 +85,11 @@ vector<vector<double>> LJ::getForces() {
 				// Multiply the prefactor with the distance
 				double F_jia = pf * pbc_dist;
 				
+				// If we are working with a cut-off, then add the correction
+				if (r_c != 0.0) {
+					F_jia -= cutoffForce;
+				}
+
 				// Add the force to the vector of both affected atoms
 				F[i][k] += F_jia;
 				F[j][k] -= F_jia;
@@ -81,6 +103,14 @@ vector<vector<double>> LJ::getForces() {
 	return F;
 }
 
+double LJ::getPressureCorrection() {
+	if (r_c == 0.0) {
+		return 0;
+	}
+	return 32.0 / 9.0 * M_PI * numberDensity * numberDensity *
+		(pow(1.0 / r_c, 9.0) - 1.5 * pow(1.0 / r_c, 3.0));
+}
+
 // Helper function for printing the forces vector to the console
 void LJ::printForces(vector<vector<double>> F) {
 	for (vector<double> f : F) {
@@ -89,4 +119,23 @@ void LJ::printForces(vector<vector<double>> F) {
 		}
 		cout << endl;
 	}
+}
+
+double LJ::calculateEnergy(double r) {
+	if (r_c != 0.0 && r_c < r) {
+		return 0;
+	}
+	double U_r = 4.0 * (pow(1.0 / r, 12.0) - pow(1.0 / r, 6.0));
+	if (r_c == 0.0) {
+		return U_r;
+	}
+	return U_r - cutoffEnergy - cutoffForce * (r - r_c);
+}
+
+double LJ::calculateEnergyCorrection() {
+	if (r_c == 0.0) {
+		return 0;
+	}
+	return 8.0 / 9.0 * M_PI * atoms->getSize() * numberDensity *
+		(pow(1.0 / r_c, 9.0) - 3 * pow(1.0 / r_c, 3.0));
 }
