@@ -1,3 +1,4 @@
+#define _USE_MATH_DEFINES
 #include "Analysis.h"
 #include <iostream>
 
@@ -51,4 +52,46 @@ void AnalysisTools::LinearRegressor::printSums() {
 	std::cout << sumXX << std::endl;
 	std::cout << sumXY << std::endl;
 	std::cout << sumY << std::endl;
+}
+
+
+AnalysisTools::RadDistribFunc::RadDistribFunc(Atoms* a, dataT* d)
+	: hist(0, 0)
+{
+	rMax = a->getCellLength() / 2.0;
+	int nbins = static_cast<int>(rMax / 0.05);	//multiply by sigma?
+	dr = rMax / nbins;
+	hist.resize(nbins);
+	rhoN = d->rhoN;
+	atoms = a;
+}
+
+AnalysisTools::RadDistribFunc::~RadDistribFunc() {
+	vector<int>().swap(hist);		// Release memory from hist
+}
+
+void AnalysisTools::RadDistribFunc::update() {
+	vector<vector<double>> r = atoms->getDistances();
+	for (int i = 0; i < atoms->getSize()-1; i++) {
+		for (int j = i+1; j < atoms->getSize(); j++) {
+			if (r[i][j] > rMax) {
+				continue;
+			}
+			int index = static_cast<int>( r[i][j] / dr);
+			hist[index] += 2;
+		}
+	}
+	nt++;
+	vector<vector<double>>().swap(r);	// Release memory from r
+}
+
+vector<vector<double>> AnalysisTools::RadDistribFunc::getRDF() {
+	double prefactor = atoms->getSize() * static_cast<double>(nt) 
+		* 4.0 * M_PI * rhoN * pow(dr, 3.0) / 3.0;
+	vector<vector<double>> RDF(hist.size(), vector<double>(2, 0));
+	for (int i = 0; i < hist.size(); i++) {
+		RDF[i][0] = (i + 0.5) * dr;
+		RDF[i][1] = hist[i] / prefactor / (pow(i + 1, 3.0) - pow(i, 3.0));
+	}
+	return RDF;
 }
