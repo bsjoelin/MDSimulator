@@ -1,5 +1,9 @@
 #ifndef _analysistools_h
 #define _analysistools_h
+#include <vector>
+#include "Atoms.h"
+#include "dataType.h"
+
 
 // Container class for analysis function/tools
 class AnalysisTools
@@ -29,6 +33,28 @@ public:
 		int elements = 0;	// the number of points in the regression
 	};
 
+
+	// Radial Distribution Class
+	class RadDistribFunc
+	{
+	public:
+		// Constructor
+		RadDistribFunc(Atoms* atoms, dataT* data);
+		// Destructor
+		~RadDistribFunc();
+		// Build histogram
+		void update();
+		// Get radial distribution function
+		vector<vector<double>> getRDF();
+
+	private:
+		double dr;			// Delta r is the size of a bin
+		int nt = 0;				// Counter for number of recorded configs. 
+		vector<int> hist;	// Histogram
+		double rhoN;		// Number density
+		Atoms* atoms;
+		double rMax;
+	};
 };
 
 #endif // !_analysistools_h

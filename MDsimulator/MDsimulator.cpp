@@ -10,8 +10,8 @@
 #include "CellBuilder.h"
 #include "VelocityManager.h"
 #include "Ensemble.h"
-#include "Analysis.h"
 #include "dataType.h"
+#include "Analysis.h"
 using namespace std;
 
 // Define important constants
@@ -54,6 +54,7 @@ int main()
 	// Initialize a linear regressor to take care of calculating the deviation in
 	// the (extended) Hamiltonian
 	AnalysisTools::LinearRegressor reg = AnalysisTools::LinearRegressor();
+	AnalysisTools::RadDistribFunc rdf = AnalysisTools::RadDistribFunc(&atoms, &dataContainer);
 
 	// Initialize the potential and kinetic energy, and the time
 	double U, K, Hx, t = 0;
@@ -67,6 +68,7 @@ int main()
 
 	// Add the first point to the regressor
 	reg.addPoint(t, K + U);  // Hx = 0 in the start
+	rdf.update();
 
 	// The MD loop of the program
 	for (int i = 1; i <= dataContainer.simSteps; i++)
@@ -84,6 +86,7 @@ int main()
 		
 		// Add the time-energy point to the regressor
 		reg.addPoint(t, K + U + Hx);
+		rdf.update();
 	}
 
 	// Close the logger and write regression data to the console
@@ -93,6 +96,19 @@ int main()
 	cout << "b = " << reg.getIntersect() << " eV" << endl;
 	cout << "P = " << ens->getPressure() * dataContainer.epsK * kB
 		/ pow(dataContainer.sigma, 3.0) * 1e30 << " Pa" << endl;
+	
+	vector<vector<double>> graph = rdf.getRDF();
+	ofstream rdfgraph("rdf.txt");
+	
+	// Make sure that the file was opened properly
+	if (!rdfgraph.is_open()) {
+		cout << "Couldn't open rdf output file. Exiting." << endl;
+		return 0;  // End the program, if the logger wasn't opened
+	}
+	for (vector<double> c : graph) {
+		rdfgraph << c[0] << "\t" << c[1] << endl;
+	}
+	rdfgraph.close();
 
 	return 0;  // End program execution
 }
