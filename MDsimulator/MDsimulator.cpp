@@ -56,8 +56,9 @@ int main()
 	AnalysisTools::LinearRegressor reg = AnalysisTools::LinearRegressor();
 	AnalysisTools::RadDistribFunc rdf = AnalysisTools::RadDistribFunc(&atoms, &dataContainer);
 
-	// Initialize the potential and kinetic energy, and the time
+	// Initialize the potential and kinetic energy, pressure and the time
 	double U, K, Hx, t = 0;
+	double avPressure = 0;
 
 	// Log the header
 	logger << "t\tU\tK\tHx\tH" << endl;
@@ -87,16 +88,22 @@ int main()
 		reg.addPoint(t, K + U + Hx);
 		if (i > 10000) {
 			rdf.update();
+			avPressure += ens->getPressure();
 		}
 	}
+
+	// Calculate average pressure for the steps after 10000
+	avPressure /= (dataContainer.simSteps - 10000.0);
 
 	// Close the logger and write regression data to the console
 	logger.close();
 	cout << "dt = " << dataContainer.dt_ps << endl;
 	cout << "a = " << reg.getSlope() << " eV/ps" << endl;
 	cout << "b = " << reg.getIntersect() << " eV" << endl;
-	cout << "P = " << ens->getPressure() * dataContainer.epsK * kB
+	cout << "p = " << ens->getPressure() * dataContainer.epsK * kB
 		/ pow(dataContainer.sigma, 3.0) * 1e30 << " Pa" << endl;
+	cout << "Z = " << avPressure/dataContainer.rhoN
+		/dataContainer.T_s << endl;
 	
 	vector<vector<double>> graph = rdf.getRDF();
 	ofstream rdfgraph("rdf.txt");
@@ -106,6 +113,8 @@ int main()
 		cout << "Couldn't open rdf output file. Exiting." << endl;
 		return 0;  // End the program, if the logger wasn't opened
 	}
+	// Print radial distribution function to rdf
+	rdfgraph << "r" << "\t" << "g(r)" << endl;
 	for (vector<double> c : graph) {
 		rdfgraph << c[0] << "\t" << c[1] << endl;
 	}
