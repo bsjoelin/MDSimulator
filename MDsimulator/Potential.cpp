@@ -74,8 +74,8 @@ vector<vector<double>> LJ::getForces() {
 				continue;
 			}
 			// force prefactor
-			double pf = 48 * ( pow(1 / dist[i][j], 14.0) 
-				- 0.5 * pow(1 / dist[i][j], 8.0) );
+			double pf = 48 * ( pow(1.0 / dist[i][j], 14.0) 
+				- 0.5 * pow(1.0 / dist[i][j], 8.0) );
 			for (int k = 0; k < 3; k++)	{
 				// Calculate the pbc distance per axis
 				double diff = atoms->getPos(i)[k] - atoms->getPos(j)[k];
@@ -87,7 +87,7 @@ vector<vector<double>> LJ::getForces() {
 				
 				// If we are working with a cut-off, then add the correction
 				if (r_c != 0.0) {
-					F_jia -= cutoffForce;
+					F_jia += cutoffForce;
 				}
 
 				// Add the force to the vector of both affected atoms
@@ -129,7 +129,7 @@ double LJ::calculateEnergy(double r) {
 	if (r_c == 0.0) {
 		return U_r;
 	}
-	return U_r - cutoffEnergy - cutoffForce * (r - r_c);
+	return U_r - cutoffEnergy + cutoffForce * (r - r_c);
 }
 
 double LJ::calculateEnergyCorrection() {

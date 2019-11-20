@@ -1,16 +1,16 @@
-27
+256
 10000
 0.001
 161.73
-0.33
+1.4283
 101325.0
 119.8
 3.405
-0.0
-0.1
-NVE
+4.5
+0.075
+NVT
 LJ
-VERLET
+VELVERLET
 !
 !	nAtoms		= total number of atoms
 !	simSteps	= no. MD steps 

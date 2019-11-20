@@ -68,7 +68,6 @@ int main()
 
 	// Add the first point to the regressor
 	reg.addPoint(t, K + U);  // Hx = 0 in the start
-	rdf.update();
 
 	// The MD loop of the program
 	for (int i = 1; i <= dataContainer.simSteps; i++)
@@ -86,7 +85,9 @@ int main()
 		
 		// Add the time-energy point to the regressor
 		reg.addPoint(t, K + U + Hx);
-		rdf.update();
+		if (i > 10000) {
+			rdf.update();
+		}
 	}
 
 	// Close the logger and write regression data to the console
