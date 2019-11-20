@@ -30,11 +30,7 @@ LJ::LJ(Atoms* a, double nDensity, double cutoff) :
 {
 	if (r_c != 0.0) {
 		cutoffEnergy = calculateEnergy(r_c);
-		cutoffForce = 48 * (pow(1.0 / r_c, 13.0) - 0.5 * pow(1.0 / r_c, 7.0));
-	}
-	else {
-		cutoffEnergy = 0.0;
-		cutoffForce = 0.0;
+		diffU_r = -48 * (pow(1.0 / r_c, 13.0) - 0.5 * pow(1.0 / r_c, 7.0));
 	}
 }
 
@@ -70,7 +66,7 @@ vector<vector<double>> LJ::getForces() {
 	vector<vector<double>> F(atoms->getSize(), vector<double>(3, 0));
 	for (int i = 0; i < atoms->getSize() - 1; i++) {
 		for (int j = i + 1; j < atoms->getSize(); j++) {
-			if (r_c != 0.0 && r_c < dist[i][j]) {
+			if (r_c != 0.0 && dist[i][j] > r_c) {
 				continue;
 			}
 			// force prefactor
@@ -87,7 +83,7 @@ vector<vector<double>> LJ::getForces() {
 				
 				// If we are working with a cut-off, then add the correction
 				if (r_c != 0.0) {
-					F_jia += cutoffForce;
+					F_jia += diffU_r * pbc_dist / dist[i][j];
 				}
 
 				// Add the force to the vector of both affected atoms
@@ -129,7 +125,7 @@ double LJ::calculateEnergy(double r) {
 	if (r_c == 0.0) {
 		return U_r;
 	}
-	return U_r - cutoffEnergy + cutoffForce * (r - r_c);
+	return U_r - cutoffEnergy - diffU_r * (r - r_c);
 }
 
 double LJ::calculateEnergyCorrection() {
@@ -137,5 +133,5 @@ double LJ::calculateEnergyCorrection() {
 		return 0;
 	}
 	return 8.0 / 9.0 * M_PI * atoms->getSize() * numberDensity *
-		(pow(1.0 / r_c, 9.0) - 3 * pow(1.0 / r_c, 3.0));
+		(pow(1.0 / r_c, 9.0) - 3.0 * pow(1.0 / r_c, 3.0));
 }

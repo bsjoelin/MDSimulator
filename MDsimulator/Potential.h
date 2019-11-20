@@ -55,8 +55,8 @@ public:
 	void printForces(vector<vector<double>> F);
 
 private:
-	double cutoffEnergy;	// the energy at the cut-off
-	double cutoffForce;		// the force at the cut-off
+	double cutoffEnergy = 0.0;	// the energy at the cut-off
+	double diffU_r = 0.0;	// the force at the cut-off
 
 	// Calculate the energy between a single pair, and handle cut-off
 	double calculateEnergy(double distance);
