@@ -93,7 +93,7 @@ int main()
 	}
 
 	// Calculate average pressure for the steps after 10000
-	avPressure /= (dataContainer.simSteps - 10000.0);
+	avPressure = avPressure/(dataContainer.simSteps - 10000.0);
 
 	// Close the logger and write regression data to the console
 	logger.close();
@@ -114,7 +114,7 @@ int main()
 		return 0;  // End the program, if the logger wasn't opened
 	}
 	// Print radial distribution function to rdf
-	rdfgraph << "r" << "\t" << "g(r)" << endl;
+	rdfgraph << "r" << "\t" << "g_r" << endl;
 	for (vector<double> c : graph) {
 		rdfgraph << c[0] << "\t" << c[1] << endl;
 	}

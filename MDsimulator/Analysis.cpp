@@ -59,7 +59,7 @@ AnalysisTools::RadDistribFunc::RadDistribFunc(Atoms* a, dataT* d)
 	: hist(0, 0)
 {
 	rMax = a->getCellLength() / 2.0;
-	int nbins = static_cast<int>(rMax / 0.05);	//multiply by sigma?
+	int nbins = static_cast<int>(rMax / 0.02);
 	dr = rMax / nbins;
 	hist.resize(nbins);
 	rhoN = d->rhoN;
