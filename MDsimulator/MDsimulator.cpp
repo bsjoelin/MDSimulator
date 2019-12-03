@@ -50,7 +50,7 @@ int main()
 	InitializeSetup(&atoms, &dataContainer);
 
 	// Create an Ensemble object, passing the Atoms object and data container
-	Ensemble* ens = new NVT(&atoms, &dataContainer); // should take the Ensemble type as parameter
+	Ensemble* ens = Ensemble::createEnsemble(&atoms, &dataContainer); // should take the Ensemble type as parameter
 	
 	// Initialize a linear regressor to take care of calculating the deviation in
 	// the (extended) Hamiltonian

@@ -45,6 +45,18 @@ Ensemble::~Ensemble() {
 	delete &Pot, &InteEngine;
 }
 
+Ensemble* Ensemble::createEnsemble(Atoms* a, dataT* d) {
+	switch (d->ET)
+	{
+	case EnsType::NVE:
+		return new NVE(a, d);
+	case EnsType::NVT:
+		return new NVT(a, d);
+	default:
+		return new NVE(a, d);
+	}
+}
+
 // Ask the Potential to calculate the distances between atoms, so the potential
 // energy and the forces can be calculated
 double Ensemble::calculate() {

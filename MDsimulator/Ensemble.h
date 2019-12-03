@@ -17,6 +17,8 @@ public:
 	Ensemble(Atoms* atoms, dataT* data);
 	virtual ~Ensemble();
 
+	static Ensemble* createEnsemble(Atoms* atoms, dataT* data);
+
 	// Public function for calculating energy and forces of the inherent Atoms object
 	double calculate();
 	// Calculate the pressure of the system
