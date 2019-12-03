@@ -3,7 +3,6 @@
 
 #include <iostream>
 #include <fstream>
-
 #include <iomanip>
 
 #include "Atoms.h"
@@ -12,13 +11,14 @@
 #include "Ensemble.h"
 #include "dataType.h"
 #include "Analysis.h"
+#include "Parser.h"
 using namespace std;
 
 // Define important constants
 const double kB = 1.38064852e-23;  // Boltzmann's constant
 const double kBeV = 8.6173303360e-5;  //Boltzmann's constant in eV/K
 const double AVOGADRO = 6.022045e+23;  // Avogadro's constant
-const string INFILE = "parameters.inp";  // Name of the input file - should be sysarg at some point.
+const string INFILE = "params.in";  // Name of the input file - should be sysarg at some point.
 const string OUTFILE = "sim.out";  // Name of output file - should be sysarg at some point.
 
 // Function prototypes for main
@@ -31,8 +31,7 @@ void saveXYZ(Atoms* atoms, dataT* data, string out);
 int main()
 {
 	// Create logger/output file as a stream and open it
-	ofstream logger;
-	logger.open(OUTFILE);
+	ofstream logger(OUTFILE);
 	
 	// Make sure that the file was opened properly
 	if (!logger.is_open()) {
@@ -43,8 +42,10 @@ int main()
 	// Create the data container and populate it
 	dataT dataContainer;
 	GetParameters(&dataContainer);
+
+	//return 0;
 	// Initialize the Atoms object
-	Atoms atoms(dataContainer.nAtoms);
+	Atoms atoms(dataContainer.nAtoms, dataContainer.mass);
 	// Create the setup of the initial system
 	InitializeSetup(&atoms, &dataContainer);
 
@@ -126,46 +127,30 @@ int main()
 
 // Function for population the data container from the input file
 void GetParameters(dataT *d) {
-	// Create input stream
-	ifstream inputFile(INFILE);
-	if (inputFile.is_open()) {
-		// Stream the values of the input file into the correct values
-		// (This should be sent to a parser to allow better control of input files)
-		inputFile >> d->nAtoms >> d->simSteps >> d->dt_ps >> d->T >>
-			d->rho >> d->P >> d->epsK >> d->sigma >> d->r_co >> d->tau_s;
+	// Parse the input file
+	Parser ps(INFILE, d);
 
-		// Calculate reduced parameters
-		double mu = (Atoms::mass * Atoms::mass) / (2 * Atoms::mass) 
-			/ (AVOGADRO * 1000.0);
+	// Calculate reduced parameters
+	double mu = (d->mass * d->mass) / (2 * d->mass) 
+		/ (AVOGADRO * 1000.0);
 
-		d->dt_s = pow(d->epsK * kB / (mu * pow(d->sigma, 2)), 0.5) 
-			* 1.0e-12 * 1.0e+10 * d->dt_ps;
+	d->dt_s = pow(d->epsK * kB / (mu * pow(d->sigma, 2)), 0.5) 
+		* 1.0e-12 * 1.0e+10 * d->dt_ps;
 
-		// The reduced temperature is given by T_s = T * kB / eps = T / epsK
-		d->T_s = d->T / d->epsK;
+	// The reduced temperature is given by T_s = T * kB / eps = T / epsK
+	d->T_s = d->T / d->epsK;
 
-		d->eps = d->epsK * kBeV;
+	d->eps = d->epsK * kBeV;
 
-		// The reduced relaxation can be determined from the factor for dt_s
-		d->tau_s_s = d->tau_s * d->dt_s / d->dt_ps;
+	// The reduced relaxation can be determined from the factor for dt_s
+	d->tau_s_s = d->tau_s * d->dt_s / d->dt_ps;
 
-		// Set integrator and potential
-		d->IT = InteType::VELVERLET;
-		d->PT = PotType::LJ;
-		
-		// Close the input file.
-		inputFile.close();
-	}
-	else {
-		// End the program in error, if the inpu file is unavailable
-		throw invalid_argument("Data file unavailable!");
-	}
 }
 
 // Function for creating the initial configuration of the system
 void InitializeSetup(Atoms* a, dataT* d) {
 	// Calculate number density in m^{-3}
-	double rhoN = AVOGADRO / a->mass * d->rho * 1e-24 * pow(d->sigma, 3);
+	double rhoN = AVOGADRO / d->mass * d->rho * 1e-24 * pow(d->sigma, 3);
 	d->rhoN = rhoN;
 	// Build the cell (with a static call)
 	CellBuilder::buildCell(a, rhoN);

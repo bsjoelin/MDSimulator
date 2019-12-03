@@ -5,6 +5,8 @@
 #include "Integrator.h"
 #include "dataType.h"
 
+enum class EnsType { NVE, NVT };
+
 // Class representing any ensemble (NVE, NVT, ...), which works as an interface
 // with a few functions, which it passes on to its children.
 class Ensemble

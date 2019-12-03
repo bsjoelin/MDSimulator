@@ -4,7 +4,7 @@
 
 // The constructor initializes the position and velocity vectors and the
 // distance matrix to the right size
-Atoms::Atoms(int natoms)
+Atoms::Atoms(int natoms, double m)
 	: pos(natoms, vector<double>(3, 0)),
 	vel(natoms, vector<double>(3, 0)),
 	distances(natoms, vector<double>(natoms, 0))
@@ -12,6 +12,7 @@ Atoms::Atoms(int natoms)
 	// Initialize the number of atoms and the cell size
 	nAtoms = natoms;
 	cellLength = 0.0;
+	mass = m;
 }
 
 // The destructor deletes the memory of the position and velocity vectors
@@ -159,6 +160,11 @@ int Atoms::getSize() {
 // Simple getter for the cell size
 double Atoms::getCellLength() {
 	return cellLength;
+}
+
+// Simple getter for the mass
+double Atoms::getMass() {
+	return mass;
 }
 
 // Getter for the position vector of atom i

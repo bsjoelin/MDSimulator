@@ -41,8 +41,9 @@ void CellBuilder::buildCell(Atoms* atoms, double density) {
 
 		// Delete the old Atoms object and create a new with the proper
 		// number of elements
+		double mass = atoms->getMass();
 		atoms->~Atoms();
-		*atoms = Atoms(N);
+		*atoms = Atoms(N, mass);
 		cellLength = pow(N / density, (1.0 / 3.0));  // new cell size
 		buildSCCell(atoms, n + 0.1, cellLength);
 	}

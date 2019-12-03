@@ -12,7 +12,7 @@ class Atoms {
 public:
 	// Constructor and destructor for object. The constructur takes the number of
 	// atoms it will contain.
-	Atoms(int natoms);
+	Atoms(int natoms, double mass);
 	virtual ~Atoms();
 
 	// Functions for centering the positions and velocities, so the weighted
@@ -31,6 +31,7 @@ public:
 	// Getter functions for the object members
 	int getSize();  // Get number of atoms
 	double getCellLength();  // Get the side length of the cell [dimensionless]
+	double getMass();  // Get the mass of the atoms
 	vector<double> getPos(int i);  // Get the position vector of atom i
 	vector<double> getVel(int i);  // Get the velocity vector of atom i
 	double getEnergy();  // Get the kinetic energy of all the atoms
@@ -41,12 +42,11 @@ public:
 	void setVel(int i, vector<double> r);  // Set the velocity vector of atom i as r
 	void setCellLength(double length);  // Set the side length of the cell
 
-	static constexpr double mass = 39.948;  // Mass of Argon [unit mass]
-
 private:
 	// Used for determining when to recalculate distance matrix
 	bool positionsChanged = true;
 	int nAtoms;  // The number of atoms
+	double mass;  // The mass of the atoms
 	double cellLength;  // The side length of the cell
 	vector<vector<double> > pos, vel;  // Position and velocity vectors
 	vector<vector<double>> distances;
