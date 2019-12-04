@@ -55,6 +55,28 @@ public:
 		Atoms* atoms;
 		double rMax;
 	};
+
+
+	// Self-diffussion Coefficient
+	class Diffusion
+	{
+	public:
+		// Constructor 
+		Diffusion(Atoms* atoms, dataT* data);
+		// Destructor
+		~Diffusion();
+		// Find start positions
+		void start(double time);
+		// Get diffusion coefficients
+		double getDiffu(double time);
+	private:
+		Atoms* atoms;
+		dataT* data;
+		double msd = 0.0; // Mean square displacement
+		double endt = 0.0; // End time 
+		vector<vector<double>> op; // Old positions
+		double startt = 0.0; // Start time
+	};
 };
 
 #endif // !_analysistools_h

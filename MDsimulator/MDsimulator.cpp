@@ -55,6 +55,7 @@ int main()
 	// the (extended) Hamiltonian
 	AnalysisTools::LinearRegressor reg = AnalysisTools::LinearRegressor();
 	AnalysisTools::RadDistribFunc rdf = AnalysisTools::RadDistribFunc(&atoms, &dataContainer);
+	AnalysisTools::Diffusion dico = AnalysisTools::Diffusion(&atoms, &dataContainer);
 
 	// Initialize the potential and kinetic energy, pressure and the time
 	double U, K, Hx, t = 0;
@@ -90,6 +91,11 @@ int main()
 			rdf.update();
 			avPressure += ens->getPressure();
 		}
+
+		// Register start time and positions for self-diffusion
+		if (i == 10001)	{
+			dico.start(t * dataContainer.dt_s / dataContainer.dt_ps);
+		}
 	}
 
 	// Calculate average pressure for the steps after 10000
@@ -104,11 +110,14 @@ int main()
 		/ pow(dataContainer.sigma, 3.0) * 1e30 << " Pa" << endl;
 	cout << "Z = " << avPressure/dataContainer.rhoN
 		/dataContainer.T_s << endl;
+	cout << "D = " << dico.getDiffu(t* dataContainer.dt_s 
+		/ dataContainer.dt_ps) * pow(dataContainer.sigma, 2.0) * 1e-8
+		<< " m^2/s" << endl;
 	
 	vector<vector<double>> graph = rdf.getRDF();
 	ofstream rdfgraph("rdf.txt");
 	
-	// Make sure that the file was opened properly
+	// Make sure that the RDF file was opened properly
 	if (!rdfgraph.is_open()) {
 		cout << "Couldn't open rdf output file. Exiting." << endl;
 		return 0;  // End the program, if the logger wasn't opened

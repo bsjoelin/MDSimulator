@@ -95,3 +95,44 @@ vector<vector<double>> AnalysisTools::RadDistribFunc::getRDF() {
 	}
 	return RDF;
 }
+
+
+AnalysisTools::Diffusion::Diffusion(Atoms* a, dataT* d)
+	: op(0, vector<double>(0, 0))
+{
+	atoms = a;
+	data = d;
+}
+
+AnalysisTools::Diffusion::~Diffusion() {
+
+}
+
+void AnalysisTools::Diffusion::start(double time) 
+{
+	for (int i = 0; i < atoms->getSize(); i++)
+	{
+		op.push_back(atoms->getPos(i));
+	}
+	startt = time;
+}
+
+double AnalysisTools::Diffusion::getDiffu(double time)
+{
+	if (op.size() == 0)
+	{
+		return 0;
+	}
+	for (int i = 0; i < atoms->getSize(); i++)
+	{
+		vector<double> np = atoms->getPos(i);
+		double r =  0.0;
+		for (int k = 0; k < 3; k++)
+		{
+			r += pow(np[k] - op[i][k], 2.0);
+		}
+		msd += r;
+	}
+	endt = (time - startt);
+	return msd / (6.0 * endt * atoms->getSize());
+}
