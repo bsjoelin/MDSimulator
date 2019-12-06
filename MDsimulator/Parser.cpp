@@ -3,6 +3,8 @@
 #include "Potential.h"
 #include "Integrator.h"
 
+// Creates the InputParser with the alias matrix, and parses the input file.
+// Then parses the values into the dataT object.
 Parser::Parser(std::string f, dataT* d)
 	: ip(aliasMatrix)
 {
@@ -13,15 +15,16 @@ Parser::Parser(std::string f, dataT* d)
 // empty destructor
 Parser::~Parser() {}
 
-
+// Parses all the necessary values into their dataT variable
 void Parser::parseData(dataT* d) {
 	int N = ip.getInt("N");
 	if (N == -1) {
-		throw std::invalid_argument(
-			"Parameter 'N' (number of molecules) has to be given!");
+		std::cout << "Parameter 'N' (number of molecules) has to be given!"
+			<< endl;
+		exit(-1);
 	}
+	parseValue(&(d->nMolecules), "N");
 	parseValue(&(d->apm), "apm");
-	d->nAtoms = d->apm * N;
 	parseValue(&(d->simSteps), "steps");
 	parseValue(&(d->mass), "mass");
 	parseValue(&(d->T), "T");
@@ -40,6 +43,10 @@ void Parser::parseData(dataT* d) {
 	parseValue(&(d->PT), "pot");
 	parseValue(&(d->IT), "int");
 }
+
+// Following are all the functions for securely parsing a value into
+// the dataT object, ensuring the type is correct, and if values
+// were not given, the defaults take over.
 
 void Parser::parseValue(int* vp, std::string key) {
 	int val = ip.getInt(key);
@@ -64,6 +71,10 @@ void Parser::parseValue(std::string* vp, std::string key) {
 
 void Parser::parseValue(std::vector<double>* vp, std::string key) {
 	*vp = ip.getVectorD(key);
+}
+
+void Parser::parseValue(std::vector<int>* vp, std::string key) {
+	*vp = ip.getVectorI(key);
 }
 
 void Parser::parseValue(EnsType* vp, std::string key) {

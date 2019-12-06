@@ -22,7 +22,8 @@ InputParser::~InputParser() {}
 void InputParser::parseFile(std::string filename) {
 	std::ifstream input(filename);
 	if (!input.is_open()) {
-		throw std::invalid_argument("File not found!");
+		std::cout << "File not found!" << std::endl;
+		exit(-1);
 	}
 	// Read the entire file into a string
 	std::string t(
@@ -66,8 +67,8 @@ void InputParser::parseToken(std::string token) {
 		activeKey = aliasMap[token];  // get new active keyword
 	} // If the first token of the input is not a keyword
 	else if (activeKey.compare("") == 0) {
-		throw std::invalid_argument(
-			"First word in file is not a keyword or alias");
+		std::cout << "First word in file is not a keyword or alias" << std::endl;
+		exit(-1);
 	}
 	else {
 		// Create the value as a comma-separated list, ending in a comma.
@@ -75,7 +76,7 @@ void InputParser::parseToken(std::string token) {
 	}
 }
 
-// The following is just Getters for key-value pairs for different values.
+// The following are just Getters for key-value pairs for different values.
 
 std::string InputParser::getKey(std::string alias) {
 	return aliasMap[alias];
@@ -99,7 +100,8 @@ int InputParser::getInt(std::string key) {
 	} catch (const std::exception&) {
 		std::string em = "Wrong argument given for key: '"
 			+ key + "'. Found: '" + out + "', but expected type Integer.";
-		throw std::invalid_argument(em);
+		std::cout << em << std::endl;
+		exit(-1);
 	}
 }
 
@@ -114,7 +116,8 @@ double InputParser::getDouble(std::string key) {
 	} catch (const std::exception&) {
 		std::string em = "Wrong argument given for key: '"
 			+ key + "'. Found: '" + out + "', but expected type Double.";
-		throw std::invalid_argument(em);
+		std::cout << em << std::endl;
+		exit(-1);
 	}
 }
 
@@ -130,17 +133,46 @@ std::vector<double> InputParser::getVectorD(std::string key) {
 	std::vector<double> v;
 	std::stringstream ss(getValue(key));
 	std::string item;
+	// Pass an empty vector on properly
 	if (ss.str().compare(",") == 0) {
 		return std::vector<double>(0);
 	}
 
+	// Turn the string vector into a std::vector
 	while (getline(ss, item, ',')) {
 		try {
 			v.push_back(stod(item));  // add the double to the vector
 		} catch (const std::exception&) {
 			std::string em = "Wrong argument given for key: '"
 				+ key + "'. Found: '" + item + "', but expected type Double.";
-			throw std::invalid_argument(em);
+			std::cout << em << std::endl;
+			exit(-1);
+		}
+	}
+	return v;
+}
+
+std::vector<int> InputParser::getVectorI(std::string key) {
+	// Uses a stringstream to populate a vector by using the comma
+	// as a delimiter.
+	std::vector<int> v;
+	std::stringstream ss(getValue(key));
+	std::string item;
+	// Pass an empty vector on properly
+	if (ss.str().compare(",") == 0) {
+		return std::vector<int>(0);
+	}
+
+	// Turn the string vector into a std::vector
+	while (getline(ss, item, ',')) {
+		try {
+			v.push_back(stoi(item));  // add the int to the vector
+		}
+		catch (const std::exception&) {
+			std::string em = "Wrong argument given for key: '"
+				+ key + "'. Found: '" + item + "', but expected type Int.";
+			std::cout << em << std::endl;
+			exit(-1);
 		}
 	}
 	return v;

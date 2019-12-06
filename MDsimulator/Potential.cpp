@@ -44,7 +44,12 @@ double LJ::getEnergy() {
 	// Run over all atom pairs and calculate the energy
 	for (int i = 0; i < atoms->getSize() - 1; i++) {
 		for (int j = i + 1; j < atoms->getSize(); j++) {
-			U += calculateEnergy(dist[i][j]);
+			// Don't use th LJ potential, if the atoms are bonded
+			if (atoms->isBonded(i, j)) {
+				U += atoms->getBondEnergy(i, j);
+			} else {
+				U += calculateEnergy(dist[i][j]);
+			}
 		}
 	}
 	// Return the potential energy
@@ -66,9 +71,27 @@ vector<vector<double>> LJ::getForces() {
 	vector<vector<double>> F(atoms->getSize(), vector<double>(3, 0));
 	for (int i = 0; i < atoms->getSize() - 1; i++) {
 		for (int j = i + 1; j < atoms->getSize(); j++) {
+			// Skip the calculation if the distance is longer than cutoff
 			if (r_c != 0.0 && dist[i][j] > r_c) {
 				continue;
 			}
+			
+			// Only calculate the bond force, if the atoms are bonded
+			if (atoms->isBonded(i, j)) {
+				vector<double> F_ji = atoms->getBondForce(i, j);
+				for (int k = 0; k < 3; k ++) {
+					double diff = atoms->getPos(i)[k] - atoms->getPos(j)[k];
+
+					// Add the force to the force vectors
+					F[i][k] += F_ji[k];
+					F[j][k] -= F_ji[k];
+
+					// Add the sum force interactions (they are negative)
+					sumForceInteractions -= F_ji[k] * diff;
+				}
+				continue;
+			}
+
 			// force prefactor
 			double pf = 48 * ( pow(1.0 / dist[i][j], 14.0) 
 				- 0.5 * pow(1.0 / dist[i][j], 8.0) );

@@ -165,6 +165,7 @@
   <ItemGroup>
     <ClInclude Include="Analysis.h" />
     <ClInclude Include="Atoms.h" />
+    <ClInclude Include="bondType.h" />
     <ClInclude Include="CellBuilder.h" />
     <ClInclude Include="dataType.h" />
     <ClInclude Include="Ensemble.h" />

@@ -1,9 +1,9 @@
-N		64
+N		108
 apm		2
 steps	11000
-T		161.73
+T		100.0
 mass	39.948
-rho		1.4283
+rho		0.003437
 dt		0.001
 epsK	119.63
 sigma	3.405
@@ -11,7 +11,7 @@ tau_s	0.01
 cutoff	3.5
 ens		NVT
 Integrator	velverlet
-pos		((0, 0, 0), (1, 1, 1))
-bonds	((1, 2))
-bond_constants	(50)
+pos		((0, 0, 0), (0.7920, 0, 0.7920))
+bonds	((0, 1))
+bond_constants	(5.7)
 r_eqs	(1.12)

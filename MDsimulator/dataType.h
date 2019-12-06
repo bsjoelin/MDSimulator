@@ -7,7 +7,7 @@ enum class EnsType;
 
 // Structure class to contain the parameters of the MD simulation
 struct dataT {
-	int nAtoms = 1;			// Number of atoms
+	int nMolecules = 1;			// Number of atoms
 	int apm = 1;			// Atoms per molecules
 	int simSteps = 1;		// Number of MD steps
 	double T = 273.15;		// Temperature [Kelvin]
@@ -20,7 +20,7 @@ struct dataT {
 	double r_co = 0.0;		// Potential cut_off [Angstrom]
 	double tau_s = 0.0;		// Relaxation time for heat bath [ps]
 	std::vector<double> pos{};		// The initial positions for the atoms
-	std::vector<double> bonds{};	// The bonding pairs
+	std::vector<int> bonds{};		// The bonding pairs
 	std::vector<double> ks{};		// The bonding force constants [eV/Angstrom^2]
 	std::vector<double> r_eqs{};	// The equilibrium distances [Angstrom]
 
