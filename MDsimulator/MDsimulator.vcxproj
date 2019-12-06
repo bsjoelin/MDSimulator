@@ -155,18 +155,23 @@
     <ClCompile Include="Atoms.cpp" />
     <ClCompile Include="CellBuilder.cpp" />
     <ClCompile Include="Ensemble.cpp" />
+    <ClCompile Include="InputParser.cpp" />
     <ClCompile Include="Integrator.cpp" />
     <ClCompile Include="MDsimulator.cpp" />
+    <ClCompile Include="Parser.cpp" />
     <ClCompile Include="Potential.cpp" />
     <ClCompile Include="VelocityManager.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Analysis.h" />
     <ClInclude Include="Atoms.h" />
+    <ClInclude Include="bondType.h" />
     <ClInclude Include="CellBuilder.h" />
     <ClInclude Include="dataType.h" />
     <ClInclude Include="Ensemble.h" />
+    <ClInclude Include="InputParser.h" />
     <ClInclude Include="Integrator.h" />
+    <ClInclude Include="Parser.h" />
     <ClInclude Include="Potential.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="VelocityManager.h" />
@@ -176,6 +181,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="parameters.inp" />
+    <None Include="params.in" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

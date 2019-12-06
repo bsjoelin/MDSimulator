@@ -39,6 +39,12 @@
     <ClCompile Include="Analysis.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Parser.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="InputParser.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Atoms.h">
@@ -68,6 +74,15 @@
     <ClInclude Include="dataType.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Parser.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="InputParser.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="bondType.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="MDsimulator.rc">
@@ -76,5 +91,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="parameters.inp" />
+    <None Include="params.in" />
   </ItemGroup>
 </Project>

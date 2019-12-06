@@ -1,7 +1,6 @@
 #define _USE_MATH_DEFINES
 #include "VelocityManager.h"
 #include <random>
-//#include <cmath>
 #include "time.h"
 
 // A struct needed to be able to use the class in a static way, which can
@@ -24,7 +23,7 @@ void VelocityManager::initializeVelocities(Atoms* atoms, double T) {
 	// Loop through all velocities, and generate them
 	for (int i = 0; i < atoms->getSize(); i++) {
 		for (int j = 0; j < 3; j++) {
-			v[j] = gaussianN(atoms->mass, T);
+			v[j] = gaussianN(atoms->getMass(), T);
 		}
 		atoms->setVel(i, v);
 	}

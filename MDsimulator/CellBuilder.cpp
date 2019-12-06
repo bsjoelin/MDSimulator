@@ -5,8 +5,8 @@
 
 // The static buildCell() function determines the correct lattice sytem to
 // build and sends the necessary parameters on to the proper functions
-void CellBuilder::buildCell(Atoms* atoms, double density) {
-	int N = atoms->getSize();  // the number of atoms
+void CellBuilder::buildCell(Atoms* atoms, int nMols, double density) {
+	int N = nMols;  // the number of molecules
 	double n = pow(N, (1.0 / 3.0));  // the cube root of N
 	// Calculate the cell length as described in the Atoms object
 	double cellLength = pow(N / density, (1.0 / 3.0));
@@ -24,13 +24,13 @@ void CellBuilder::buildCell(Atoms* atoms, double density) {
 
 	double temp = 0.0;  // the integer
 	if (abs(modf(n + 0.0001, &temp)) < 0.001) {
-		buildSCCell(atoms, temp, cellLength);
+		BuildSCUnitCell(atoms, temp, cellLength);
 	}
 	else if (abs(modf(n * bccFactor + 0.001, &temp)) < 0.01) {
-		buildBCCCell(atoms, temp, cellLength);
+		buildBCCUnitCell(atoms, temp, cellLength);
 	}
 	else if (abs(modf(n * fccFactor + 0.001, &temp)) < 0.01) {
-		buildFCCCell(atoms, temp, cellLength);
+		buildFCCUnitCell(atoms, temp, cellLength);
 	}
 	// If c is neither 1, 2 or 4, we can assume, that the number is not a
 	// magic number, and we just round N down to the nearest sc system.
@@ -39,93 +39,70 @@ void CellBuilder::buildCell(Atoms* atoms, double density) {
 		cout << "Number of atoms is not a magic number! using "
 			<< N << " instead." << endl;
 
-		// Delete the old Atoms object and create a new with the proper
-		// number of elements
-		atoms->~Atoms();
-		*atoms = Atoms(N);
+		// Resize the atoms object and calculate the new cell length.
+		double new_n = pow(N, (1.0 / 3.0));
 		cellLength = pow(N / density, (1.0 / 3.0));  // new cell size
-		buildSCCell(atoms, n + 0.1, cellLength);
+		BuildSCUnitCell(atoms, new_n, cellLength);
 	}
 	// Give the cell size to the Atoms object
 	atoms->setCellLength(cellLength);
+	// Center the atoms
+	atoms->center();
 }
+
 
 // All the following functions work by:
 // 1) Determine the number of subcells (n^3)
-// 2) Calculate the side length of each subcell
-// 3) Place the atoms in each subcell as the lattice type prescribes
+// 2) Calculate the half side length of a subcell
+// 3) Place the atoms in the unit cell as the lattice type prescribes
+// 4) set the cell length as the unit cell length
 
-void CellBuilder::buildSCCell(Atoms * atoms, double N, double length) {
+void CellBuilder::BuildSCUnitCell(Atoms* atoms, double N, double length) {
 	int n = static_cast<int>(N);
-	double dCell = length / n;
-	int index = 0;
-	for (int i = 0; i < n; i++)  // loop through x
-	{
-		for (int j = 0; j < n; j++)  // loop through y
-		{
-			for (int k = 0; k < n; k++)  // loop through z
-			{
-				// Place atom at (0, 0, 0) in each subcell
-				vector<double> r = { i * dCell, j * dCell, k * dCell};
-				atoms->setPos(index++, r);
-			}
-		}
-	}
-	// Center the atoms
-	atoms->center();
+	double dHalfCell = 0.5 * length / n;
+	atoms->setCellLength(2.0 * dHalfCell);
+	atoms->repeat(n);
 	cout << "Chose SC!" << endl;
 }
 
-void CellBuilder::buildBCCCell(Atoms* atoms, double N, double length) {
+void CellBuilder::buildBCCUnitCell(Atoms* atoms, double N, double length) {
 	int n = static_cast<int>(N);
-	double dCell = length / n;
-	int index = 0;
-	for (int i = 0; i < n; i++)  // loop through x
-	{
-		for (int j = 0; j < n; j++)  // loop through y
-		{
-			for (int k = 0; k < n; k++)  // loop through z
-			{
-				// Place atom at (0, 0, 0) in each subcell
-				vector<double> r = { i * dCell, j * dCell, k * dCell };
-				atoms->setPos(index++, r);
-				// Place atom at (0.5, 0.5, 0.5) in each subcell (center)
-				r = { (i + 0.5) * dCell, (j + 0.5) * dCell, (k + 0.5) * dCell };
-				atoms->setPos(index++, r);
-			}
+	int initAtomsSize = atoms->getSize();
+	atoms->resize(2);
+	double dHalfCell = 0.5 * length / n;
+	vector<double> transformV = { dHalfCell, dHalfCell, dHalfCell };
+	for (int i = 0; i < initAtomsSize; i++) {
+		vector<double> p = atoms->getPos(i);
+		for (int k = 0; k < 3; k++) {
+			p[k] += transformV[k];
 		}
+		atoms->setPos(i + initAtomsSize, p);
 	}
-	// Center the atoms
-	atoms->center();
+	atoms->setCellLength(2.0 * dHalfCell);
+	atoms->repeat(n);
 	cout << "Chose BCC!" << endl;
 }
 
-void CellBuilder::buildFCCCell(Atoms* atoms, double N, double length) {
+void CellBuilder::buildFCCUnitCell(Atoms* atoms, double N, double length) {
 	int n = static_cast<int>(N);
-	double dCell = length / n;
-	int index = 0;
-	for (int i = 0; i < n; i++)  // loop through x
-	{
-		for (int j = 0; j < n; j++)  // loop through y
-		{
-			for (int k = 0; k < n; k++)  // loop through z
-			{
-				// Place atom at (0, 0, 0) in each subcell
-				vector<double> r = { i * dCell, j * dCell, k * dCell };
-				atoms->setPos(index++, r);
-				// Place atom at (0.5, 0.5, 0) in each subcell (xy-plane)
-				r = { (i + 0.5) * dCell, (j + 0.5) * dCell, k * dCell };
-				atoms->setPos(index++, r);
-				// Place atom at (0.5, 0, 0.5) in each subcell (xz-plane)
-				r = { i * dCell, (j + 0.5) * dCell, (k + 0.5) * dCell };
-				atoms->setPos(index++, r);
-				// Place atom at (0, 0.5, 0.5) in each subcell (yz-plane)
-				r = { (i + 0.5) * dCell, j * dCell, (k + 0.5) * dCell };
-				atoms->setPos(index++, r);
+	int initAtomsSize = atoms->getSize();
+	atoms->resize(4);
+	double dHalfCell = 0.5 * length / n;
+	vector<vector<double>> transformVs = {
+		{ 0.0, dHalfCell, dHalfCell },
+		{ dHalfCell, 0.0, dHalfCell },
+		{ dHalfCell, dHalfCell, 0.0 }
+	};
+	for (int i = 0; i < initAtomsSize; i++) {
+		for (int j = 0; j < 3; j++) {
+			vector<double> p = atoms->getPos(i);
+			for (int k = 0; k < 3; k++) {
+				p[k] += transformVs[j][k];
 			}
+			atoms->setPos((j + (__int64)1) * initAtomsSize + i, p);
 		}
 	}
-	// Center the atoms
-	atoms->center();
+	atoms->setCellLength(2.0 * dHalfCell);
+	atoms->repeat(n);
 	cout << "Chose FCC!" << endl;
 }

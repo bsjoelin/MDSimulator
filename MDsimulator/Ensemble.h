@@ -5,6 +5,8 @@
 #include "Integrator.h"
 #include "dataType.h"
 
+enum class EnsType { NVE, NVT };
+
 // Class representing any ensemble (NVE, NVT, ...), which works as an interface
 // with a few functions, which it passes on to its children.
 class Ensemble
@@ -14,6 +16,8 @@ public:
 	// Integrator scheme, and takes care of destroying them when the ensemble is.
 	Ensemble(Atoms* atoms, dataT* data);
 	virtual ~Ensemble();
+
+	static Ensemble* createEnsemble(Atoms* atoms, dataT* data);
 
 	// Public function for calculating energy and forces of the inherent Atoms object
 	double calculate();

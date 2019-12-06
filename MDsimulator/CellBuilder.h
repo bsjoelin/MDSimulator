@@ -10,21 +10,19 @@
 class CellBuilder
 {
 public:
-
 	// Static function for building the atomic system. Takes the Atoms object
 	// to populate (as a pointer) and the number density of the system.
-	static void buildCell(Atoms* atoms, double density);
+	static void buildCell(Atoms* atoms, int nMolecules, double density);
 
 private:
-	
 	// Constants for the detection algorithm
 	static constexpr double bccFactor = 0.7937005259841;  // cube root of 1/2
 	static constexpr double fccFactor = 0.6299605249474;  // cube root of 1/4
 
-	// Functions that actually build the given system
-	static void buildSCCell(Atoms* atoms, double N, double length);
-	static void buildBCCCell(Atoms* atoms, double N, double length);
-	static void buildFCCCell(Atoms* atoms, double N, double length);
+	// Functions that build unit cell of the given system
+	static void BuildSCUnitCell(Atoms* atoms, double N, double length);
+	static void buildBCCUnitCell(Atoms* atoms, double N, double length);
+	static void buildFCCUnitCell(Atoms* atoms, double N, double length);
 };
 
 #endif // !_cellbuilder_h
