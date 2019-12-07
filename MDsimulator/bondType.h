@@ -18,13 +18,13 @@ struct bondT {
 		return 0.5 * k_s * pow(dist - r_eq_s, 2.0);
 	}
 
-	// Get the 3D bond vector.
+	// Get the 3D bond force vector.
 	std::vector<double> getForce(double dist, std::vector<double> p1, std::vector<double> p2) {
-		double force = - k_s * (dist - r_eq_s);
+		double force = k_s * (dist - r_eq_s) / dist;
 		std::vector<double> v = { force, force, force };
 		for (int k = 0; k < 3; k++) {
 			double diff = p2[k] - p1[k];
-			v[k] *= diff / dist;
+			v[k] *= diff;
 		}
 		return v;
 	}

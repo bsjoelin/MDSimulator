@@ -53,6 +53,8 @@ public:
 	// Change the number of molecules in the Atoms object. Please only increase the number.
 	void resize(int newSize);
 
+	void validateBonds();
+
 	// Repeat the unit cell the given number of times in the directions.
 	void repeat(int N);
 

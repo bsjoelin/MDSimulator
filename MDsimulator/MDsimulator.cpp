@@ -128,8 +128,6 @@ int main()
 	}
 	rdfgraph.close();
 
-	saveXYZ(&atoms, &dataContainer, "fred");
-
 	return 0;  // End program execution
 }
 

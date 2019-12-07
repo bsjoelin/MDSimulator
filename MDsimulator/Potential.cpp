@@ -71,11 +71,6 @@ vector<vector<double>> LJ::getForces() {
 	vector<vector<double>> F(atoms->getSize(), vector<double>(3, 0));
 	for (int i = 0; i < atoms->getSize() - 1; i++) {
 		for (int j = i + 1; j < atoms->getSize(); j++) {
-			// Skip the calculation if the distance is longer than cutoff
-			if (r_c != 0.0 && dist[i][j] > r_c) {
-				continue;
-			}
-			
 			// Only calculate the bond force, if the atoms are bonded
 			if (atoms->isBonded(i, j)) {
 				vector<double> F_ji = atoms->getBondForce(i, j);
@@ -86,9 +81,14 @@ vector<vector<double>> LJ::getForces() {
 					F[i][k] += F_ji[k];
 					F[j][k] -= F_ji[k];
 
-					// Add the sum force interactions (they are negative)
-					sumForceInteractions -= F_ji[k] * diff;
+					// Add the sum force interactions
+					sumForceInteractions += F_ji[k] * diff;
 				}
+				continue;
+			}
+
+			// Skip the calculation if the distance is longer than cutoff
+			if (r_c != 0.0 && dist[i][j] > r_c) {
 				continue;
 			}
 
@@ -112,6 +112,7 @@ vector<vector<double>> LJ::getForces() {
 				// Add the force to the vector of both affected atoms
 				F[i][k] += F_jia;
 				F[j][k] -= F_jia;
+
 				// Add the force interaction
 				sumForceInteractions += F_jia * pbc_dist;
 			}

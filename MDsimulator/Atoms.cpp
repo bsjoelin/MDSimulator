@@ -9,7 +9,7 @@ Atoms::Atoms(int natoms, double m)
 	vel(natoms, vector<double>(3, 0)),
 	distances(natoms, vector<double>(natoms, 0)),
 	reducedBondMatrix(natoms, vector<int>(natoms, 0)),
-	bondTypes(0)
+	bondTypes{}
 {
 	// Initialize the number of atoms and the cell size
 	nAtoms = natoms;
@@ -241,7 +241,7 @@ bool Atoms::hasChangedPositions() {
 bondT Atoms::getBond(int i, int j) {
 	int red_i = i % apm;
 	int red_j = j % apm;
-	int mIdx = reducedBondMatrix[red_i][red_j] + 1;
+	int mIdx = reducedBondMatrix[red_i][red_j] - 1;
 	return bondTypes[mIdx];
 }
 
@@ -266,7 +266,7 @@ void Atoms::setCellLength(double length) {
 
 void Atoms::setBonds(vector<int> bonds, vector<double> ks, vector<double> r_es) {
 	bondTypes.clear();  // Remove all existing bonds
-	int counter = 1;  // set the first bond type to correspond to 1
+	int counter = 0;  // set the first bond type to correspond to 1
 	for (int i = 0; i < ks.size(); i++) {
 		// Create a new bond and check whether its type already exists
 		bondT b;
@@ -329,4 +329,13 @@ void Atoms::resize(int nMols) {
 	distances.clear();
 	distances.resize(new_nAtoms, vector<double>(new_nAtoms, 0));
 	positionsChanged = true;
+}
+
+void Atoms::validateBonds() {
+	for (int i = 0; i < nAtoms; i++) {
+		for (int j = 0; j < nAtoms; j++) {
+			cout << isBonded(i, j) << ", ";
+		}
+		cout << endl;
+	}
 }
